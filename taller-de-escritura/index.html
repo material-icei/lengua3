@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mi Taller de Historias</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+  <meta name="description" content="Taller interactivo para que alumnos de 3.º grado inventen y escriban su propio cuento maravilloso.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%F0%9F%93%98%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="saltar" href="#principal">Ir al contenido</a>
+
+  <!-- ===================== BARRA SUPERIOR ===================== -->
+  <header id="barra" class="barra" hidden>
+    <div class="barra-interior">
+      <div class="marca" title="Mi Taller de Historias"><span aria-hidden="true">📘</span><span class="marca-texto"> Mi Taller de Historias</span></div>
+      <nav class="nav-pasos" aria-label="Etapas de tu historia">
+        <ol id="pasos" class="pasos"></ol>
+      </nav>
+      <div class="zona-guardado">
+        <span id="chip-guardado" class="chip-guardado" role="status" aria-live="polite" hidden></span>
+        <span id="codigo-barra" class="codigo-mini" hidden></span>
+        <button type="button" id="btn-guardar" class="btn btn-turquesa btn-chico">💾 Guardar borrador</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="principal" tabindex="-1">
+
+    <!-- ===================== BIENVENIDA ===================== -->
+    <section id="pantalla-bienvenida" class="pantalla" aria-labelledby="titulo-bienvenida">
+      <div class="contenedor bienvenida">
+        <div class="bienvenida-arte" aria-hidden="true">
+          <svg viewBox="0 0 420 340" width="420" height="340" class="arte-libro">
+            <defs>
+              <linearGradient id="g-cielo" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#d9f2ff"/><stop offset="1" stop-color="#fff3c9"/>
+              </linearGradient>
+            </defs>
+            <circle cx="210" cy="160" r="150" fill="url(#g-cielo)"/>
+            <!-- castillo -->
+            <g fill="#ece6ff" stroke="#6b4fd1" stroke-width="3" stroke-linejoin="round">
+              <rect x="150" y="70" width="120" height="90" rx="4"/>
+              <rect x="130" y="50" width="34" height="110"/>
+              <rect x="256" y="50" width="34" height="110"/>
+              <path d="M126 52 l21 -30 l21 30z" fill="#ff8a7d"/>
+              <path d="M252 52 l21 -30 l21 30z" fill="#ff8a7d"/>
+              <path d="M196 72 l14 -24 l14 24z" fill="#ffc83d"/>
+              <rect x="196" y="112" width="28" height="48" rx="14" fill="#fff"/>
+            </g>
+            <!-- árboles -->
+            <circle cx="92" cy="150" r="26" fill="#7fd39a" stroke="#2f9a4f" stroke-width="3"/>
+            <rect x="88" y="168" width="8" height="22" fill="#a0703f"/>
+            <circle cx="330" cy="146" r="30" fill="#7fd39a" stroke="#2f9a4f" stroke-width="3"/>
+            <rect x="326" y="166" width="8" height="24" fill="#a0703f"/>
+            <!-- libro abierto -->
+            <g stroke="#22304a" stroke-width="4" stroke-linejoin="round">
+              <path d="M40 200 Q125 175 210 205 L210 320 Q125 290 40 315 Z" fill="#ffffff"/>
+              <path d="M380 200 Q295 175 210 205 L210 320 Q295 290 380 315 Z" fill="#fffdf2"/>
+            </g>
+            <g fill="none" stroke="#9cc7ea" stroke-width="3" stroke-linecap="round">
+              <path d="M70 228 Q125 214 185 230"/><path d="M70 250 Q125 236 185 252"/><path d="M70 272 Q125 258 185 274"/>
+              <path d="M235 230 Q295 214 350 228"/><path d="M235 252 Q295 236 350 250"/><path d="M235 274 Q295 258 350 272"/>
+            </g>
+            <!-- lápiz -->
+            <g transform="rotate(-35 330 250)">
+              <rect x="300" y="238" width="96" height="22" rx="4" fill="#ffc83d" stroke="#22304a" stroke-width="3"/>
+              <rect x="380" y="238" width="16" height="22" rx="3" fill="#ff8a7d" stroke="#22304a" stroke-width="3"/>
+              <path d="M300 238 L278 249 L300 260 Z" fill="#f6d9b5" stroke="#22304a" stroke-width="3" stroke-linejoin="round"/>
+            </g>
+            <!-- estrellas -->
+            <g fill="#ffc83d" stroke="#e0a100" stroke-width="2">
+              <path class="titila" d="M60 70 l6 13 14 2 -10 10 2 14 -12 -7 -12 7 2 -14 -10 -10 14 -2z"/>
+              <path class="titila t2" d="M362 64 l5 10 11 2 -8 8 2 11 -10 -5 -10 5 2 -11 -8 -8 11 -2z"/>
+              <path class="titila t3" d="M210 12 l4 8 9 1 -6 6 1 9 -8 -4 -8 4 1 -9 -6 -6 9 -1z"/>
+            </g>
+          </svg>
+        </div>
+
+        <div class="tarjeta bienvenida-tarjeta">
+          <h1 id="titulo-bienvenida" data-foco tabindex="-1">Mi Taller de Historias</h1>
+          <p class="lema">¡Bienvenido, escritor o escritora! Hoy vas a inventar una historia increíble. Elegí tus personajes, imaginá un lugar y preparate para escribir.</p>
+
+          <div id="aviso-config" class="aviso aviso-amarillo" hidden>
+            <strong>Aviso para el docente:</strong> <span id="aviso-config-texto">la API de Apps Script todavía no tiene configurada la carpeta de Drive. Ejecutá instalar() en el editor de Apps Script (ver README).</span>
+          </div>
+
+          <div id="caja-continuar" class="caja-continuar" hidden>
+            <p class="caja-continuar-texto"><span aria-hidden="true">📖</span> Tenés una historia empezada en esta computadora: <strong id="continuar-titulo"></strong></p>
+            <p class="mini" id="continuar-autores"></p>
+            <div class="fila-botones">
+              <button type="button" id="btn-continuar" class="btn btn-principal btn-grande">✏️ Seguir con mi historia</button>
+              <button type="button" id="btn-empezar-otra" class="btn btn-claro">✨ Empezar una historia nueva</button>
+            </div>
+          </div>
+
+          <form id="form-datos" novalidate>
+            <fieldset class="bloque">
+              <legend>✍️ ¿Quién escribe esta historia?</legend>
+              <div id="lista-autores"></div>
+              <button type="button" id="btn-agregar-autor" class="btn btn-claro btn-chico">➕ Agregar otro autor o autora</button>
+            </fieldset>
+
+            <fieldset class="bloque">
+              <legend>🏫 ¿En qué grado estás?</legend>
+              <div class="fila-grado">
+                <div class="campo">
+                  <label for="campo-grado">Grado</label>
+                  <select id="campo-grado">
+                    <option value="1">1.º</option><option value="2">2.º</option><option value="3">3.º</option>
+                    <option value="4">4.º</option><option value="5">5.º</option><option value="6">6.º</option><option value="7">7.º</option>
+                  </select>
+                </div>
+                <div class="campo">
+                  <label for="campo-division">División</label>
+                  <input id="campo-division" type="text" maxlength="3" autocomplete="off" placeholder="A" aria-describedby="error-division">
+                </div>
+              </div>
+              <p class="error" id="error-division" hidden></p>
+            </fieldset>
+
+            <button type="submit" class="btn btn-principal btn-grande btn-ancho">✨ ¡Comenzar mi historia!</button>
+          </form>
+
+          <details class="caja-codigo" id="caja-codigo">
+            <summary>🔑 ¿Tenés un código para seguir una historia guardada?</summary>
+            <div class="caja-codigo-cuerpo">
+              <label for="campo-codigo">Escribí tu código (por ejemplo: KQ7-M2PX)</label>
+              <div class="fila-codigo">
+                <input id="campo-codigo" type="text" maxlength="9" autocomplete="off" spellcheck="false" placeholder="ABC-1234" aria-describedby="msg-codigo">
+                <button type="button" id="btn-recuperar" class="btn btn-turquesa">🔍 Buscar mi historia</button>
+              </div>
+              <p id="msg-codigo" class="mensaje" role="status" aria-live="polite"></p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== MÓDULO 1 · PERSONAJES ===================== -->
+    <section id="pantalla-personajes" class="pantalla" aria-labelledby="titulo-personajes" hidden>
+      <div class="contenedor">
+        <div class="encabezado-pantalla fondo-violeta">
+          <span class="icono-grande" aria-hidden="true">🧙</span>
+          <div>
+            <h2 id="titulo-personajes" data-foco tabindex="-1">¿Quiénes serán los protagonistas?</h2>
+            <p>Inventá uno o varios personajes. Podés inspirarte con estas tarjetas o crear el tuyo desde cero.</p>
+          </div>
+        </div>
+
+        <h3 class="subtitulo">✨ Tarjetas para inspirarte <span class="mini">(tocá una para empezar su ficha)</span></h3>
+        <div id="grilla-inspiracion" class="grilla-tarjetas"></div>
+
+        <h3 class="subtitulo">📚 Mis personajes <span id="contador-personajes" class="mini"></span></h3>
+        <p id="sin-personajes" class="vacio">Todavía no creaste personajes. ¡Elegí una tarjeta o tocá «Agregar personaje»!</p>
+        <div id="lista-personajes" class="lista-personajes"></div>
+
+        <p id="msg-personajes" class="error error-grande" role="alert" hidden></p>
+        <div class="acciones-pantalla">
+          <button type="button" class="btn btn-claro" data-ir="bienvenida">◀ Volver a mis datos</button>
+          <button type="button" id="btn-agregar-personaje" class="btn btn-turquesa">➕ Agregar personaje</button>
+          <button type="button" id="btn-personajes-listos" class="btn btn-principal btn-grande">¡Mis personajes están listos! ▶</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== MÓDULO 2 · LUGAR ===================== -->
+    <section id="pantalla-lugar" class="pantalla" aria-labelledby="titulo-lugar" hidden>
+      <div class="contenedor">
+        <div class="encabezado-pantalla fondo-celeste">
+          <span class="icono-grande" aria-hidden="true">🏰</span>
+          <div>
+            <h2 id="titulo-lugar" data-foco tabindex="-1">¿Dónde sucede tu historia?</h2>
+            <p>Elegí un escenario o inventá uno propio. Después contá cómo es.</p>
+          </div>
+        </div>
+
+        <h3 class="subtitulo">🗺️ Elegí un escenario</h3>
+        <div id="grilla-lugares" class="grilla-tarjetas"></div>
+
+        <div id="ficha-lugar" class="tarjeta ficha" hidden>
+          <h3 class="subtitulo" id="titulo-ficha-lugar" tabindex="-1">📝 Describí tu lugar</h3>
+          <p class="ayuda">Completá lo que quieras: <strong>¡no hace falta responder todo!</strong></p>
+          <div class="campos-2">
+            <div class="campo">
+              <label for="l-nombre">Nombre del lugar</label>
+              <input id="l-nombre" type="text" maxlength="80" placeholder="Por ejemplo: El Bosque de los Susurros">
+            </div>
+            <div class="campo">
+              <label for="l-como">¿Cómo es?</label>
+              <textarea id="l-como" rows="2" maxlength="600" placeholder="¿Es grande, pequeño, antiguo, mágico…?"></textarea>
+            </div>
+            <div class="campo">
+              <label for="l-colores">¿Qué colores, formas o cosas se pueden ver?</label>
+              <textarea id="l-colores" rows="2" maxlength="600"></textarea>
+            </div>
+            <div class="campo">
+              <label for="l-sonidos">¿Qué sonidos se escuchan?</label>
+              <textarea id="l-sonidos" rows="2" maxlength="600"></textarea>
+            </div>
+            <div class="campo">
+              <label for="l-clima">¿Cómo es el clima?</label>
+              <input id="l-clima" type="text" maxlength="600" placeholder="Soleado, con viento, lluvioso, nevado…">
+            </div>
+            <div class="campo">
+              <label for="l-sensaciones">¿Qué se siente estar ahí?</label>
+              <input id="l-sensaciones" type="text" maxlength="600" placeholder="Alegría, misterio, calma, un poco de miedo…">
+            </div>
+          </div>
+          <fieldset class="bloque bloque-sin-borde">
+            <legend>¿En qué momento sucede la historia?</legend>
+            <div id="chips-momento" class="chips"></div>
+            <div class="campo" id="campo-momento-otro" hidden>
+              <label for="l-momento-otro">¿Qué otro momento?</label>
+              <input id="l-momento-otro" type="text" maxlength="80" placeholder="Por ejemplo: durante una tormenta">
+            </div>
+          </fieldset>
+          <div class="resumen-lugar" id="resumen-lugar"></div>
+        </div>
+
+        <div class="tarjeta ficha bloque-objeto">
+          <h3 class="subtitulo">🪄 ¿Hay un objeto mágico o un hallazgo? <span class="mini">(opcional)</span></h3>
+          <p class="ayuda">En los cuentos maravillosos aparecen objetos que hacen que sucedan cosas maravillosas: una varita, un espejo que habla, una semilla dorada…</p>
+          <div id="grilla-objetos" class="grilla-tarjetas grilla-chica"></div>
+          <div id="ficha-objeto" class="campos-2" hidden>
+            <div class="campo">
+              <label for="o-nombre">¿Cómo se llama el objeto?</label>
+              <input id="o-nombre" type="text" maxlength="80">
+            </div>
+            <div class="campo">
+              <label for="o-poder">¿Qué poder tiene o qué tiene de especial?</label>
+              <textarea id="o-poder" rows="2" maxlength="600"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <p id="msg-lugar" class="error error-grande" role="alert" hidden></p>
+        <div class="acciones-pantalla">
+          <button type="button" class="btn btn-claro" data-ir="personajes">◀ Volver a los personajes</button>
+          <button type="button" id="btn-lugar-listo" class="btn btn-principal btn-grande">Continuar al taller de escritura ▶</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== MÓDULO 3 · TALLER DE ESCRITURA ===================== -->
+    <section id="pantalla-taller" class="pantalla" aria-labelledby="titulo-taller" hidden>
+      <div class="contenedor">
+        <div class="acciones-historia" id="acciones-taller"></div>
+        <h2 id="titulo-taller" class="solo-lectores" data-foco tabindex="-1">Taller de escritura</h2>
+
+        <div class="taller">
+          <div class="taller-principal">
+            <div class="caja-titulo">
+              <label for="campo-titulo">🏷️ Título de mi historia</label>
+              <input id="campo-titulo" type="text" maxlength="120" spellcheck="false" autocomplete="off" placeholder="Por ejemplo: El misterio de la llave dorada">
+            </div>
+
+            <div class="pestanas" role="tablist" aria-label="Partes de la historia" id="pestanas"></div>
+            <div id="paneles-etapas"></div>
+          </div>
+
+          <aside class="recordatorios" aria-labelledby="titulo-recordatorios">
+            <h3 id="titulo-recordatorios">🗂️ Mis recordatorios</h3>
+            <div id="rec-contenido"></div>
+            <div class="rec-nombres">
+              <p class="mini">Tocá un nombre para escribirlo en tu historia:</p>
+              <div id="rec-nombres" class="chips chips-chicos"></div>
+            </div>
+            <div class="rec-links">
+              <button type="button" class="btn-link" data-ir="personajes">✏️ Cambiar personajes</button>
+              <button type="button" class="btn-link" data-ir="lugar">✏️ Cambiar el lugar</button>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== VER MI HISTORIA ===================== -->
+    <section id="pantalla-vista" class="pantalla" aria-labelledby="titulo-vista" hidden>
+      <div class="contenedor">
+        <div class="acciones-historia no-imprimir" id="acciones-vista"></div>
+        <h2 id="titulo-vista" class="solo-lectores" data-foco tabindex="-1">Vista previa de mi historia</h2>
+        <article id="libro" class="libro"></article>
+
+        <details class="tarjeta revision no-imprimir">
+          <summary>✅ Revisá tu historia <span class="mini">(es para vos, ¡no es una nota!)</span></summary>
+          <ul class="lista-revision" id="lista-revision"></ul>
+        </details>
+      </div>
+    </section>
+
+    <!-- ===================== PANTALLA FINAL ===================== -->
+    <section id="pantalla-final" class="pantalla" aria-labelledby="titulo-final" hidden>
+      <div class="contenedor final">
+        <div class="trofeo" aria-hidden="true">🏆</div>
+        <h2 id="titulo-final" data-foco tabindex="-1">¡Felicitaciones! ¡Creaste tu propia historia!</h2>
+        <p id="final-titulo" class="final-titulo"></p>
+
+        <div class="acciones-historia acciones-centradas" id="acciones-final"></div>
+
+        <div class="final-guardar">
+          <button type="button" id="btn-guardar-final" class="btn btn-turquesa btn-grande">☁️ Guardar en Google Drive</button>
+          <div id="resultado-guardado" class="resultado-guardado" role="status" aria-live="polite"></div>
+        </div>
+
+        <div class="final-otras">
+          <button type="button" id="btn-nueva" class="btn btn-claro">✨ Crear una nueva historia</button>
+          <button type="button" id="btn-copia" class="btn btn-claro" hidden>📄 Crear una copia</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== DIÁLOGO · FICHA DE PERSONAJE ===================== -->
+  <dialog id="dlg-personaje" class="dialogo" aria-labelledby="dlg-personaje-titulo">
+    <form id="form-personaje" novalidate>
+      <header class="dlg-cabecera fondo-violeta">
+        <h2 id="dlg-personaje-titulo">Ficha del personaje</h2>
+        <button type="button" class="btn-cerrar" data-cerrar aria-label="Cerrar sin guardar">✕</button>
+      </header>
+      <div class="dlg-cuerpo">
+        <p id="dlg-idea" class="idea" hidden></p>
+
+        <fieldset class="bloque bloque-sin-borde">
+          <legend>Elegí una imagen para tu personaje</legend>
+          <div id="selector-avatar" class="selector-avatar"></div>
+        </fieldset>
+
+        <div class="campos-2">
+          <div class="campo">
+            <label for="p-nombre">¿Cómo se llama? <span class="mini">(nombre del personaje)</span></label>
+            <input id="p-nombre" type="text" maxlength="60" autocomplete="off" aria-describedby="p-nombre-error">
+            <p class="error" id="p-nombre-error" hidden></p>
+          </div>
+          <div class="campo">
+            <label for="p-edad">¿Cuántos años tiene?</label>
+            <input id="p-edad" type="text" maxlength="40" autocomplete="off" placeholder="Por ejemplo: 9 años, 300 años">
+          </div>
+        </div>
+
+        <fieldset class="bloque bloque-sin-borde">
+          <legend>¿Qué tipo de personaje es?</legend>
+          <div id="chips-tipo" class="chips"></div>
+          <div class="campo" id="campo-tipo-otro" hidden>
+            <label for="p-tipo-otro">¿Qué es?</label>
+            <input id="p-tipo-otro" type="text" maxlength="60" placeholder="Por ejemplo: una nube que habla">
+          </div>
+        </fieldset>
+
+        <div class="campos-2">
+          <div class="campo">
+            <label for="p-fisico">¿Cómo es? <span class="mini">(cómo se ve)</span></label>
+            <textarea id="p-fisico" rows="2" maxlength="600" placeholder="Alto, bajito, con pelo rizado, escamas verdes…"></textarea>
+          </div>
+          <div class="campo">
+            <label for="p-personalidad">¿Cómo es su forma de ser?</label>
+            <textarea id="p-personalidad" rows="2" maxlength="600" placeholder="Curioso, valiente, amable, distraído…"></textarea>
+          </div>
+          <div class="campo">
+            <label for="p-gusta">¿Qué le encanta hacer?</label>
+            <textarea id="p-gusta" rows="2" maxlength="600"></textarea>
+          </div>
+          <div class="campo">
+            <label for="p-nogusta">¿Qué cosas no le gustan?</label>
+            <textarea id="p-nogusta" rows="2" maxlength="600"></textarea>
+          </div>
+        </div>
+        <div class="campo">
+          <label for="p-especial">¿Qué lo hace especial? <span class="mini">(un talento o habilidad · opcional)</span></label>
+          <textarea id="p-especial" rows="2" maxlength="600"></textarea>
+        </div>
+      </div>
+      <footer class="dlg-pie">
+        <button type="button" class="btn btn-claro" data-cerrar>Cancelar</button>
+        <button type="submit" class="btn btn-principal">Guardar ficha ✓</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- ===================== DIÁLOGO · CONFIRMAR ===================== -->
+  <dialog id="dlg-confirmar" class="dialogo dialogo-chico" aria-labelledby="conf-titulo" aria-describedby="conf-texto">
+    <div class="dlg-cuerpo centrado">
+      <div class="dlg-icono" id="conf-icono" aria-hidden="true">🤔</div>
+      <h2 id="conf-titulo"></h2>
+      <p id="conf-texto"></p>
+    </div>
+    <footer class="dlg-pie">
+      <button type="button" id="conf-no" class="btn btn-claro"></button>
+      <button type="button" id="conf-si" class="btn btn-principal"></button>
+    </footer>
+  </dialog>
+
+  <div id="aviso-flotante" class="aviso-flotante" role="status" aria-live="polite" hidden></div>
+  <div id="confeti" class="confeti" aria-hidden="true"></div>
+
+  <script src="config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
