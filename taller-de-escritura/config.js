@@ -8,5 +8,5 @@
    El ID de la carpeta de Drive NO va acá; queda guardado en Code.gs.
    ========================================================================== */
 window.TALLER_CONFIG = {
-  URL_APPS_SCRIPT: 'PEGAR_AQUI_LA_URL_DE_LA_APLICACION_WEB'
+  URL_APPS_SCRIPT: 'https://script.google.com/macros/s/AKfycbyqfJ3A0BKZbaj1K4FFg6IZSIFEFVD2yhtgy0PAveynuAYwxHRoRYoqT1oabVqC4-8ddw/exec'
 };
