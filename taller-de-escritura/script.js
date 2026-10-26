@@ -17,6 +17,7 @@
      1. CONTENIDO FIJO (alineado con la secuencia del cuento maravilloso)
      ------------------------------------------------------------------ */
   var CLAVE_LOCAL = 'mi_taller_historias_v1';
+  // Cada historia tiene un identificador interno (ej. KQ7-M2PX). El alumno no lo ve: abre sus cuentos desde «Ver cuentos».
   var ALFABETO = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
   var REGEX_CODIGO = /^[ABCDEFGHJKMNPQRSTUVWXYZ2-9]{3}-[ABCDEFGHJKMNPQRSTUVWXYZ2-9]{4}$/;
   var MAX_AUTORES = 4;
@@ -144,7 +145,8 @@
     { id: 'taller', nombre: 'Escribir' },
     { id: 'final', nombre: '¡Listo!' }
   ];
-  var PANTALLAS = ['bienvenida', 'personajes', 'lugar', 'taller', 'vista', 'final'];
+  var PANTALLAS = ['bienvenida', 'cuentos', 'leer', 'personajes', 'lugar', 'taller', 'vista', 'final'];
+  var PANTALLAS_SIN_BARRA = ['bienvenida', 'cuentos', 'leer'];
 
 
   /* ------------------------------------------------------------------
@@ -181,6 +183,9 @@
       throw e;
     });
   }
+
+  // Interruptor del docente (config.js): permite o bloquea editar los cuentos guardados.
+  var EDICION_PERMITIDA = !(window.TALLER_CONFIG && window.TALLER_CONFIG.PERMITIR_EDICION === false);
 
   var MENSAJE_DEMORA = 'La conexión está tardando mucho. Probá otra vez en un momento. Tu texto sigue acá, no se perdió.';
   var MENSAJE_SIN_INTERNET = 'Parece que no hay internet. Revisá la conexión y probá otra vez. Tu texto sigue acá, no se perdió.';
@@ -388,7 +393,8 @@
       historia.pantalla = nombre;
       guardarLocalPronto();
     }
-    $('barra').hidden = (nombre === 'bienvenida');
+    $('barra').hidden = PANTALLAS_SIN_BARRA.indexOf(nombre) !== -1;
+    document.documentElement.style.setProperty('--alto-barra', ($('barra').hidden ? 0 : ($('barra').offsetHeight || 64)) + 'px');
     if (RENDER[nombre]) RENDER[nombre](opciones);
     renderPasos();
     actualizarEstadoGuardado();
@@ -490,10 +496,6 @@
     btn.disabled = ui.guardando;
     btn.textContent = estado === 'error' ? '🔄 Intentar nuevamente'
       : (historia.estado === 'finalizada' ? '💾 Guardar cambios' : '💾 Guardar borrador');
-    var cod = $('codigo-barra');
-    cod.hidden = !historia.guardadoEnDrive;
-    cod.textContent = '🔑 ' + historia.codigo;
-    cod.title = 'Tu código para seguir esta historia otro día';
     $('btn-guardar-final').disabled = ui.guardando;
     if (ui.pantalla === 'final') renderResultadoFinal();
   }
@@ -703,47 +705,137 @@
       mostrar(destino);
     });
     $('btn-empezar-otra').addEventListener('click', function () { empezarNuevaHistoria(true); });
-    $('campo-codigo').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); recuperarConCodigo(); } });
-    $('btn-recuperar').addEventListener('click', recuperarConCodigo);
+    $('btn-ver-cuentos').addEventListener('click', function () { mostrar('cuentos'); });
   }
 
-  function recuperarConCodigo() {
-    var msg = $('msg-codigo');
-    var btn = $('btn-recuperar');
-    var codigo = normalizarCodigo($('campo-codigo').value);
-    msg.className = 'mensaje';
-    if (!codigo) {
-      msg.textContent = 'El código tiene 7 letras y números, por ejemplo: KQ7-M2PX.';
-      msg.className = 'mensaje es-error';
+  /* ------------------------------------------------------------------
+     VER CUENTOS · listado por grado y división
+     ------------------------------------------------------------------ */
+  var cuentos = { grado: '', division: '', buscando: false, abriendo: false };
+
+  function iniciarCuentos() {
+    $('form-cuentos').addEventListener('submit', function (e) { e.preventDefault(); buscarCuentos(); });
+    $('filtro-division').addEventListener('input', function () {
+      var v = this.value.toUpperCase().replace(/[^A-ZÑ0-9]/g, '');
+      if (v !== this.value) this.value = v;
+    });
+    $('filtro-grado').addEventListener('change', function () { if ($('filtro-division').value) buscarCuentos(); });
+    $('btn-imprimir-leer').addEventListener('click', function () { window.print(); });
+    $('btn-ver-cuentos-final').addEventListener('click', function () { mostrar('cuentos'); });
+  }
+
+  RENDER.cuentos = function () {
+    $('aviso-bloqueo').hidden = EDICION_PERMITIDA;
+    $('cuentos-explica').textContent = EDICION_PERMITIDA
+      ? 'Elegí tu grado y tu división, y tocá un cuento para seguir escribiéndolo.'
+      : 'Elegí tu grado y tu división, y tocá un cuento para leerlo.';
+    // Se completan con los datos del alumno, si ya los escribió
+    if (!$('filtro-division').value) {
+      $('filtro-grado').value = cuentos.grado || historia.grado || '3';
+      $('filtro-division').value = cuentos.division || historia.division || '';
+    }
+    if ($('filtro-division').value && !cuentos.buscando) buscarCuentos();
+    else if (!$('filtro-division').value) $('filtro-division').focus({ preventScroll: true });
+  };
+
+  function mensajeCuentos(texto, esError) {
+    var m = $('msg-cuentos');
+    m.textContent = texto || '';
+    m.className = 'mensaje mensaje-cuentos' + (esError ? ' es-error' : '');
+  }
+
+  function buscarCuentos() {
+    var grado = $('filtro-grado').value;
+    var division = $('filtro-division').value.trim();
+    var lista = $('lista-cuentos');
+    if (!division) {
+      mensajeCuentos('Escribí tu división, por ejemplo: A', true);
+      $('filtro-division').focus();
       return;
     }
     if (!conectado) {
-      msg.textContent = 'La app todavía no está conectada a Google Drive. Avisale a tu docente.';
-      msg.className = 'mensaje es-error';
+      mensajeCuentos('La app todavía no está conectada a Google Drive. Avisale a tu docente.', true);
       return;
     }
-    btn.disabled = true;
-    msg.textContent = 'Buscando tu historia… ⏳';
-    llamarApi({ accion: 'recuperar', codigo: codigo }, 45000)
+    cuentos.grado = grado;
+    cuentos.division = division;
+    cuentos.buscando = true;
+    $('btn-buscar-cuentos').disabled = true;
+    vaciar(lista);
+    mensajeCuentos('Buscando los cuentos de ' + grado + '.º ' + division + '… ⏳');
+    llamarApi({ accion: 'listar', grado: grado, division: division }, 45000)
       .then(function (r) {
-        btn.disabled = false;
-        if (!r || !r.ok) {
-          msg.textContent = (r && r.mensaje) || 'No pudimos buscar tu historia ahora. Probá otra vez.';
-          msg.className = 'mensaje es-error';
-          return;
-        }
-        msg.textContent = '';
-        aplicarHistoriaRecuperada(r);
+        cuentos.buscando = false;
+        $('btn-buscar-cuentos').disabled = false;
+        if (!r || !r.ok) { mensajeCuentos((r && r.mensaje) || 'No pudimos traer los cuentos. Probá otra vez.', true); return; }
+        renderListaCuentos(r.cuentos || [], grado, division);
       })
       .catch(function () {
-        btn.disabled = false;
-        msg.textContent = 'No pudimos buscar tu historia ahora. Revisá internet y probá otra vez.';
-        msg.className = 'mensaje es-error';
+        cuentos.buscando = false;
+        $('btn-buscar-cuentos').disabled = false;
+        mensajeCuentos('No pudimos traer los cuentos. Revisá internet y probá otra vez.', true);
       });
+  }
+
+  function renderListaCuentos(items, grado, division) {
+    var lista = $('lista-cuentos');
+    vaciar(lista);
+    var curso = grado + '.º ' + division;
+    if (!items.length) {
+      mensajeCuentos('Todavía no hay cuentos guardados de ' + curso + '. ¡Podés empezar uno nuevo desde el inicio!');
+      return;
+    }
+    mensajeCuentos(items.length === 1 ? 'Hay 1 cuento de ' + curso + '.' : 'Hay ' + items.length + ' cuentos de ' + curso + '.');
+    lista.appendChild(el('h3', { id: 'titulo-lista-cuentos', class: 'solo-lectores', text: 'Cuentos de ' + curso }));
+    lista.appendChild(el('div', { class: 'encabezado-lista', 'aria-hidden': 'true' }, [
+      el('span', { text: 'Grado' }), el('span', { text: 'Nombre' }), el('span', { text: 'Título' }), el('span')
+    ]));
+    items.forEach(function (c) {
+      var titulo = c.titulo || 'Sin título';
+      var accion = EDICION_PERMITIDA ? '✏️ Editar' : '📖 Leer';
+      lista.appendChild(el('button', {
+        type: 'button', class: 'item-cuento',
+        'aria-label': (EDICION_PERMITIDA ? 'Editar' : 'Leer') + ' «' + titulo + '», de ' + c.autores + ', ' + c.grado,
+        onclick: function () { abrirCuento(c.id); }
+      }, [
+        el('span', { class: 'ic-grado', text: c.grado }),
+        el('span', { class: 'ic-nombre', text: c.autores }),
+        el('span', { class: 'ic-titulo' }, [titulo, el('span', { class: 'ic-estado', text: c.estado === 'Finalizada' ? '✓ Terminado' : '✏️ En borrador' })]),
+        el('span', { class: 'ic-accion', 'aria-hidden': 'true', text: accion + ' ▶' })
+      ]));
+    });
+  }
+
+  function abrirCuento(id) {
+    if (cuentos.abriendo) return;
+    cuentos.abriendo = true;
+    mensajeCuentos('Abriendo el cuento… ⏳');
+    llamarApi({ accion: 'recuperar', codigo: id }, 45000)
+      .then(function (r) {
+        cuentos.abriendo = false;
+        if (!r || !r.ok) { mensajeCuentos((r && r.mensaje) || 'No pudimos abrir ese cuento. Probá otra vez.', true); return; }
+        mensajeCuentos('');
+        if (EDICION_PERMITIDA) aplicarHistoriaRecuperada(r);
+        else mostrarSoloLectura(r.produccion);
+      })
+      .catch(function () {
+        cuentos.abriendo = false;
+        mensajeCuentos('No pudimos abrir ese cuento. Revisá internet y probá otra vez.', true);
+      });
+  }
+
+  function mostrarSoloLectura(p) {
+    var h = nuevaHistoria();
+    ['autores', 'grado', 'division', 'personajes', 'lugar', 'objeto', 'titulo', 'inicio', 'nudo', 'desenlace'].forEach(function (k) {
+      if (p[k] !== undefined && p[k] !== null) h[k] = p[k];
+    });
+    renderLibro(h, $('libro-leer'), false);
+    mostrar('leer');
   }
 
   function aplicarHistoriaRecuperada(r) {
     var p = r.produccion;
+    if (!EDICION_PERMITIDA) { mostrarSoloLectura(p); return; }
     function cargar() {
       var h = nuevaHistoria();
       h.codigo = p.codigo;
@@ -765,8 +857,7 @@
       historia = h;
       ui.errorGuardado = '';
       guardarLocalYa();
-      $('campo-codigo').value = '';
-      avisar('¡Encontramos tu historia! 📖 Seguí escribiendo.');
+      avisar('¡Cuento abierto! 📖 Seguí escribiendo.');
       mostrar('taller');
     }
     if (tieneContenido(historia) && hayPendientes() && historia.codigo !== p.codigo) {
@@ -774,7 +865,7 @@
         icono: '📖', peligro: true,
         titulo: '¿Cambiar de historia?',
         texto: 'La historia que está abierta tiene cambios que todavía no se guardaron en Drive. Si abrís la otra, esos cambios se pierden.',
-        si: 'Sí, abrir la historia del código', no: 'No, quedarme con esta'
+        si: 'Sí, abrir el otro cuento', no: 'No, quedarme con esta'
       }).then(function (ok) { if (ok) cargar(); });
     } else {
       cargar();
@@ -1445,15 +1536,25 @@
 
   RENDER.vista = function () {
     crearBarraAcciones($('acciones-vista'), 'vista');
-    var libro = $('libro');
+    renderLibro(historia, $('libro'), true);
+
+    var lista = $('lista-revision');
+    if (!lista.firstChild) {
+      REVISION.forEach(function (r, i) {
+        lista.appendChild(el('li', null, [el('label', null, [el('input', { type: 'checkbox', id: 'rev-' + i }), r])]));
+      });
+    }
+  };
+
+  /** Dibuja la historia `historia` como libro. Con editable=false no muestra los botones de corregir. */
+  function renderLibro(historia, libro, editable) {
     vaciar(libro);
 
     libro.appendChild(el('header', { class: 'portada' }, [
       el('div', { class: 'adorno', 'aria-hidden': 'true', text: '⭐📖⭐' }),
       el('h3', { class: 'libro-titulo', text: historia.titulo.trim() || 'Mi historia (todavía sin título)' }),
       el('p', null, ['Escrita por ', el('strong', { text: nombresAutores(historia.autores) || '—' })]),
-      el('p', { text: historia.grado + '.º ' + historia.division }),
-      historia.guardadoEnDrive ? el('p', { class: 'mini', text: 'Código de la historia: ' + historia.codigo }) : null
+      el('p', { text: historia.grado + '.º ' + historia.division })
     ]));
 
     if (historia.personajes.length) {
@@ -1485,14 +1586,14 @@
       var parrafos = parrafosDe(historia[e.id]);
       var texto = el('div', { class: 'texto-cuento' });
       if (parrafos.length) parrafos.forEach(function (t) { texto.appendChild(el('p', { text: t })); });
-      else texto.appendChild(el('p', { class: 'texto-vacio', text: 'Esta parte todavía está esperando tus palabras ✏️' }));
+      else texto.appendChild(el('p', { class: 'texto-vacio', text: editable ? 'Esta parte todavía está esperando tus palabras ✏️' : 'Esta parte todavía no está escrita.' }));
       libro.appendChild(el('section', { class: 'capitulo' }, [
         el('div', { class: 'capitulo-cabecera' }, [
           el('h3', { class: 'cinta c-' + e.color, text: e.numero + '. ' + e.largo }),
-          el('button', {
+          editable ? el('button', {
             type: 'button', class: 'btn btn-claro btn-chico no-imprimir',
             onclick: function () { mostrar('taller', { focoPropio: true, etapa: e.id, foco: 'texto' }); }
-          }, ['✏️ Corregir esta parte'])
+          }, ['✏️ Corregir esta parte']) : null
         ]),
         texto
       ]));
@@ -1501,14 +1602,7 @@
     if (ETAPAS.every(function (e) { return historia[e.id].trim(); })) {
       libro.appendChild(el('p', { class: 'fin', text: '✨ Fin ✨' }));
     }
-
-    var lista = $('lista-revision');
-    if (!lista.firstChild) {
-      REVISION.forEach(function (r, i) {
-        lista.appendChild(el('li', null, [el('label', null, [el('input', { type: 'checkbox', id: 'rev-' + i }), r])]));
-      });
-    }
-  };
+  }
 
 
   /* ------------------------------------------------------------------
@@ -1549,8 +1643,9 @@
       } else {
         caja.appendChild(el('p', { text: 'Tu docente ya la puede leer en su carpeta.' }));
       }
-      caja.appendChild(el('p', null, ['Tu código para seguirla otro día: ', el('span', { class: 'codigo-grande', text: historia.codigo })]));
-      caja.appendChild(el('p', { class: 'mini', text: 'Anotalo en tu cuaderno. Con este código podés volver a abrir tu historia desde la pantalla de inicio.' }));
+      if (EDICION_PERMITIDA) {
+        caja.appendChild(el('p', { class: 'mini', text: 'Para seguirla otro día: en la pantalla de inicio tocá «📚 Ver cuentos», elegí tu grado y buscá tu cuento.' }));
+      }
       return;
     }
     caja.className = 'resultado-guardado r-pendiente';
@@ -1571,7 +1666,7 @@
     var texto = conCambios
       ? 'Tu historia tiene cambios que todavía no se guardaron en Google Drive. Si empezás una nueva, esos cambios se van a perder.'
       : (historia.guardadoEnDrive
-        ? 'Tu historia actual ya está guardada en Drive. Podés volver a abrirla con el código ' + historia.codigo + '.'
+        ? 'Tu historia actual ya está guardada en Drive. Podés volver a abrirla desde «Ver cuentos».'
         : 'Vas a empezar una historia nueva desde cero.');
     confirmar({
       icono: '✨', peligro: conCambios,
@@ -1598,7 +1693,7 @@
     confirmar({
       icono: '📄',
       titulo: '¿Crear una copia?',
-      texto: 'Se va a guardar una copia nueva en Drive, con otro código. La historia original queda guardada como estaba la última vez que la guardaste. Vas a seguir trabajando en la copia.',
+      texto: 'Se va a guardar una copia nueva en Drive. La historia original queda guardada como estaba la última vez que la guardaste. Vas a seguir trabajando en la copia.',
       si: 'Sí, crear una copia', no: 'No, volver'
     }).then(function (ok) {
       if (!ok) return;
@@ -1630,6 +1725,7 @@
     iniciarLugar();
     iniciarTaller();
     iniciarFinal();
+    iniciarCuentos();
 
     Array.prototype.forEach.call(document.querySelectorAll('[data-ir]'), function (b) {
       b.addEventListener('click', function () { mostrar(b.getAttribute('data-ir')); });
@@ -1658,7 +1754,7 @@
 
     // La altura de la barra superior cambia según el ancho: se usa para ubicar los elementos fijos.
     var barra = $('barra');
-    function medirBarra() { document.documentElement.style.setProperty('--alto-barra', (barra.offsetHeight || 64) + 'px'); }
+    function medirBarra() { document.documentElement.style.setProperty('--alto-barra', (barra.hidden ? 0 : barra.offsetHeight) + 'px'); }
     if (window.ResizeObserver) new ResizeObserver(medirBarra).observe(barra);
     window.addEventListener('resize', medirBarra);
 
