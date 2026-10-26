@@ -8,7 +8,7 @@
    El ID de la carpeta de Drive NO va acá; queda guardado en Code.gs.
    ========================================================================== */
 window.TALLER_CONFIG = {
-  URL_APPS_SCRIPT: 'https://script.google.com/macros/s/AKfycbwqpH7udmZnso-v1WnMo3Nwy8myUrhr7YHSWqLeOC2MdyUV8JE857DL-c6T3diQiBpCNQ/exec',
+  URL_APPS_SCRIPT: 'https://script.google.com/macros/s/AKfycbzyM3qNAKK4Wc-ugAvoOAwSh6CELi8TYNC6MC-uyoeayEQdnBJ6dP2k_geWds9oETsavQ/exec',
 
   // ¿Se pueden abrir los cuentos guardados para seguir editándolos?
   //   true  → «Ver cuentos» abre el cuento elegido para editarlo.
