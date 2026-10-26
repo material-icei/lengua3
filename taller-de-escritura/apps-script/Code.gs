@@ -17,12 +17,14 @@
  *  API (POST con cuerpo JSON enviado como texto plano, evita el bloqueo CORS):
  *    { "accion": "estado" }                           → { ok, configurada }
  *    { "accion": "guardar",   "datos": {...} }        → { ok, codigo, estado, ... }
+ *    { "accion": "listar", "grado": "3", "division": "A" } → { ok, cuentos: [{ id, grado, autores, titulo, estado }] }
  *    { "accion": "recuperar", "codigo": "KQ7-M2PX" }  → { ok, produccion, meta }
  *
  *  Seguridad:
  *    · Solo existen esas tres acciones; las funciones terminadas en "_" son internas.
- *    · Cada historia se identifica con un código de recuperación aleatorio
- *      (ej.: KQ7-M2PX). Ese código, no el título, es la clave en el índice.
+ *    · Cada historia tiene un identificador interno aleatorio (ej.: KQ7-M2PX).
+ *      El alumno no lo ve: elige su cuento desde «Ver cuentos» (grado y división).
+ *    · El bloqueo de la edición se configura en config.js (PERMITIR_EDICION).
  *    · En GitHub no hay claves ni IDs: el ID de la carpeta vive solo acá.
  * ==========================================================================
  */
@@ -68,12 +70,12 @@ const COLUMNAS = [
   'Nombre del archivo',
   'Enlace al documento',
   'Estado',
-  'Código de recuperación',
+  'ID de la historia (no borrar)',
   'ID del documento (técnico)'
 ];
 const COL = { CREADO: 1, ACTUALIZADO: 2, AUTORES: 3, GRADO: 4, TITULO: 5, ARCHIVO: 6, ENLACE: 7, ESTADO: 8, CODIGO: 9, DOC_ID: 10 };
 
-// Código de recuperación: 3 + 4 caracteres sin letras confusas (sin I, L, O, 0, 1)
+// Identificador interno de cada historia: 3 + 4 caracteres sin letras confusas (sin I, L, O, 0, 1)
 const REGEX_CODIGO = /^[ABCDEFGHJKMNPQRSTUVWXYZ2-9]{3}-[ABCDEFGHJKMNPQRSTUVWXYZ2-9]{4}$/;
 
 const TIPOS_PERSONAJE = { persona: 'Persona', animal: 'Animal', fantastico: 'Ser fantástico', otro: 'Otro' };
@@ -89,8 +91,8 @@ const MENSAJES = {
   FALTAN_AUTORES: 'Faltan los nombres de quienes escriben. Volvé a la primera pantalla y completalos.',
   FALTA_GRADO: 'Falta el grado o la división. Volvé a la primera pantalla y completalos.',
   DATOS_INVALIDOS: 'Algo de la historia no se pudo leer. Probá guardar otra vez.',
-  CODIGO_INVALIDO: 'El código tiene 7 letras y números, por ejemplo: KQ7-M2PX. Revisalo y probá otra vez.',
-  NO_ENCONTRADA: 'No encontramos una historia con ese código. Revisá que esté bien escrito o preguntale a tu docente.',
+  CODIGO_INVALIDO: 'No pudimos abrir ese cuento. Volvé a la lista y probá otra vez.',
+  NO_ENCONTRADA: 'No encontramos ese cuento. Puede que lo hayan borrado. Preguntale a tu docente.',
   GENERAL: 'No se pudo guardar. Probá otra vez en un momento. Tu texto sigue acá, no se perdió.'
 };
 
@@ -111,6 +113,7 @@ function doPost(e) {
   switch (pedido && pedido.accion) {
     case 'estado': return responderJson_(estadoPublico());
     case 'guardar': return responderJson_(guardarProduccion(pedido.datos));
+    case 'listar': return responderJson_(listarProducciones(pedido.grado, pedido.division));
     case 'recuperar': return responderJson_(recuperarProduccion(pedido.codigo));
     default: return responderJson_({ ok: false, codigo: 'ACCION_INVALIDA', mensaje: 'Acción no reconocida.' });
   }
@@ -253,8 +256,46 @@ function guardarProduccion(datosCrudos) {
 }
 
 /**
- * Devuelve una historia guardada a partir de su código de recuperación.
- * Permite que un alumno sin cuenta de Google continúe otro día o en otra computadora.
+ * Lista los cuentos de un grado y división (para la pantalla «Ver cuentos»).
+ * Devuelve solo lo necesario para el listado: grado, autores, título y estado.
+ */
+function listarProducciones(gradoCrudo, divisionCrudo) {
+  try {
+    const grado = String(gradoCrudo || '');
+    const division = linea_(divisionCrudo, 3).toUpperCase();
+    if (!ORDINAL_GRADO[grado] || !/^[A-ZÑ0-9]{1,3}$/.test(division)) {
+      return { ok: false, codigo: 'FALTA_GRADO', mensaje: 'Elegí tu grado y escribí tu división, por ejemplo: A.' };
+    }
+    const curso = gradoTexto_({ grado: grado, division: division });
+    const carpeta = obtenerCarpeta_();
+    const indice = obtenerIndiceSeguro_(carpeta);
+    const n = indice.hoja.getLastRow() - 1;
+    if (n < 1) return { ok: true, cuentos: [] };
+    const filas = indice.hoja.getRange(2, 1, n, COLUMNAS.length).getValues();
+    const cuentos = filas
+      .filter(function (f) { return f[COL.CODIGO - 1] && String(f[COL.GRADO - 1]).trim().toUpperCase() === curso.toUpperCase(); })
+      .map(function (f) {
+        return {
+          id: String(f[COL.CODIGO - 1]),
+          grado: String(f[COL.GRADO - 1]),
+          autores: String(f[COL.AUTORES - 1] || ''),
+          titulo: String(f[COL.TITULO - 1] || ''),
+          estado: String(f[COL.ESTADO - 1] || '')
+        };
+      })
+      .sort(function (a, b) { return a.autores.localeCompare(b.autores, 'es') || a.titulo.localeCompare(b.titulo, 'es'); })
+      .slice(0, 400);
+    return { ok: true, cuentos: cuentos };
+  } catch (err) {
+    const r = respuestaError_(err);
+    if (r.codigo === 'GENERAL') r.mensaje = 'No pudimos traer los cuentos ahora. Probá otra vez en un momento.';
+    return r;
+  }
+}
+
+/**
+ * Devuelve una historia guardada a partir de su identificador.
+ * La pide la app al tocar un cuento en «Ver cuentos».
  */
 function recuperarProduccion(codigoCrudo) {
   try {
@@ -597,7 +638,7 @@ function escribirDocumento_(doc, d, meta) {
   parrafoCentrado_(body, 'Escrito por: ' + nombresAutores_(d.autores));
   parrafoCentrado_(body, 'Grado y división: ' + gradoTexto_(d));
   parrafoCentrado_(body, 'Guardado el ' + meta.fechaTexto);
-  parrafoCentrado_(body, 'Estado: ' + (meta.estado === 'finalizada' ? 'Finalizada' : 'Borrador') + '   ·   Código de recuperación: ' + d.codigo, '#666666');
+  parrafoCentrado_(body, 'Estado: ' + (meta.estado === 'finalizada' ? 'Finalizada' : 'Borrador'), '#666666');
   body.appendHorizontalRule();
 
   // 5. Fichas de los personajes
