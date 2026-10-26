@@ -23,7 +23,6 @@
       </nav>
       <div class="zona-guardado">
         <span id="chip-guardado" class="chip-guardado" role="status" aria-live="polite" hidden></span>
-        <span id="codigo-barra" class="codigo-mini" hidden></span>
         <button type="button" id="btn-guardar" class="btn btn-turquesa btn-chico">💾 Guardar borrador</button>
       </div>
     </div>
@@ -126,18 +125,63 @@
             <button type="submit" class="btn btn-principal btn-grande btn-ancho">✨ ¡Comenzar mi historia!</button>
           </form>
 
-          <details class="caja-codigo" id="caja-codigo">
-            <summary>🔑 ¿Tenés un código para seguir una historia guardada?</summary>
-            <div class="caja-codigo-cuerpo">
-              <label for="campo-codigo">Escribí tu código (por ejemplo: KQ7-M2PX)</label>
-              <div class="fila-codigo">
-                <input id="campo-codigo" type="text" maxlength="9" autocomplete="off" spellcheck="false" placeholder="ABC-1234" aria-describedby="msg-codigo">
-                <button type="button" id="btn-recuperar" class="btn btn-turquesa">🔍 Buscar mi historia</button>
-              </div>
-              <p id="msg-codigo" class="mensaje" role="status" aria-live="polite"></p>
-            </div>
-          </details>
+          <div class="caja-ver-cuentos">
+            <p><span aria-hidden="true">📚</span> ¿Querés seguir un cuento que ya empezaste o leer los de tu clase?</p>
+            <button type="button" id="btn-ver-cuentos" class="btn btn-turquesa btn-ancho">📚 Ver cuentos</button>
+          </div>
         </div>
+      </div>
+    </section>
+
+    <!-- ===================== VER CUENTOS (listado por grado y división) ===================== -->
+    <section id="pantalla-cuentos" class="pantalla" aria-labelledby="titulo-cuentos" hidden>
+      <div class="contenedor">
+        <div class="encabezado-pantalla fondo-turquesa">
+          <span class="icono-grande" aria-hidden="true">📚</span>
+          <div>
+            <h2 id="titulo-cuentos" data-foco tabindex="-1">Cuentos de la clase</h2>
+            <p id="cuentos-explica">Elegí tu grado y tu división, y tocá un cuento para seguir escribiéndolo.</p>
+          </div>
+        </div>
+
+        <p id="aviso-bloqueo" class="aviso aviso-amarillo aviso-bloqueo" hidden>
+          🔒 <strong>Tu docente bloqueó la edición.</strong> Podés abrir los cuentos para leerlos, pero no cambiarlos.
+        </p>
+
+        <form id="form-cuentos" class="tarjeta filtro-cuentos" novalidate>
+          <div class="campo">
+            <label for="filtro-grado">Grado</label>
+            <select id="filtro-grado">
+              <option value="1">1.º</option><option value="2">2.º</option><option value="3">3.º</option>
+              <option value="4">4.º</option><option value="5">5.º</option><option value="6">6.º</option><option value="7">7.º</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="filtro-division">División</label>
+            <input id="filtro-division" type="text" maxlength="3" autocomplete="off" placeholder="A" aria-describedby="msg-cuentos">
+          </div>
+          <button type="submit" id="btn-buscar-cuentos" class="btn btn-principal">🔍 Mostrar cuentos</button>
+        </form>
+
+        <p id="msg-cuentos" class="mensaje mensaje-cuentos" role="status" aria-live="polite"></p>
+        <div id="lista-cuentos" class="lista-cuentos" aria-labelledby="titulo-lista-cuentos"></div>
+
+        <div class="acciones-pantalla">
+          <button type="button" class="btn btn-claro" data-ir="bienvenida">◀ Volver al inicio</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== LEER UN CUENTO (edición bloqueada) ===================== -->
+    <section id="pantalla-leer" class="pantalla" aria-labelledby="titulo-leer" hidden>
+      <div class="contenedor">
+        <div class="acciones-historia no-imprimir">
+          <button type="button" class="btn btn-claro" data-ir="cuentos">◀ Volver a la lista</button>
+          <button type="button" class="btn btn-claro" id="btn-imprimir-leer">🖨️ Imprimir o guardar como PDF</button>
+        </div>
+        <h2 id="titulo-leer" class="solo-lectores" data-foco tabindex="-1">Leer un cuento</h2>
+        <p class="aviso aviso-amarillo no-imprimir">🔒 Modo lectura: la edición está bloqueada por tu docente.</p>
+        <article id="libro-leer" class="libro"></article>
       </div>
     </section>
 
@@ -309,6 +353,7 @@
 
         <div class="final-otras">
           <button type="button" id="btn-nueva" class="btn btn-claro">✨ Crear una nueva historia</button>
+          <button type="button" id="btn-ver-cuentos-final" class="btn btn-claro">📚 Ver cuentos</button>
           <button type="button" id="btn-copia" class="btn btn-claro" hidden>📄 Crear una copia</button>
         </div>
       </div>
