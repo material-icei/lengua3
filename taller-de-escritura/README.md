@@ -11,7 +11,7 @@ Los alumnos **no necesitan cuenta de Google**: funciona en Chromebooks en modo i
 index.html        estructura de la app
 styles.css        diseño
 script.js         lógica (escritura, vista previa, guardado)
-config.js         ← acá va la URL de Apps Script (único archivo a editar)
+config.js         ← URL de Apps Script y bloqueo de la edición (único archivo a editar)
 apps-script/
   Code.gs         se copia en el editor de Apps Script (no lo usa GitHub Pages)
 ```
@@ -52,9 +52,21 @@ Si falta la URL en `config.js`, la pantalla de inicio muestra un aviso amarillo 
 
 - **Nombre del archivo:** `Apellido_Nombre_y_Apellido_Nombre_3roA_Titulo` (sin tildes ni símbolos; si se repite, se agrega `_2`, `_3`…).
 - Guardar varias veces la **misma** historia actualiza el mismo documento y la misma fila del índice. **Crear una copia** genera documento y fila nuevos.
-- **Código de recuperación** (ej. `KQ7-M2PX`): aparece al guardar por primera vez. Con él, el alumno retoma su historia en cualquier computadora desde la pantalla de inicio. Si lo pierde, está en la columna «Código de recuperación» del índice.
+- **Ver cuentos:** desde la pantalla de inicio (o la final), el alumno toca **📚 Ver cuentos**, elige su **grado y división** y ve el listado *Grado – Nombre – Título*. Al tocar un cuento, se abre para seguir editándolo, en cualquier computadora.
+- No hay códigos para recordar. Cada historia tiene un identificador interno en la columna «ID de la historia (no borrar)» del índice.
 - La app dice «Guardado correctamente» solo cuando Apps Script lo confirma. Si falla, el texto sigue en pantalla y se puede reintentar.
-- En la carpeta también se crea `_datos_de_la_app (no borrar)` con un respaldo de cada historia (lo usa la recuperación por código).
+- En la carpeta también se crea `_datos_de_la_app (no borrar)` con un respaldo de cada historia (lo usa «Ver cuentos» para abrirla).
+
+## Bloquear o desbloquear la edición (en `config.js`)
+
+```js
+PERMITIR_EDICION: true   // «Ver cuentos» abre el cuento para editarlo
+PERMITIR_EDICION: false  // «Ver cuentos» lo abre solo para leer (🔒 edición bloqueada)
+```
+
+Cambiá el valor y volvé a subir `config.js` a GitHub. Pages tarda uno o dos minutos en actualizarse, y los alumnos tienen que recargar la página. Con la edición bloqueada, los alumnos pueden seguir empezando cuentos nuevos y leer los de su curso.
+
+> Es un bloqueo de uso en el aula, no una protección de seguridad: lo controla la página y no Apps Script. Cualquier persona con el enlace puede ver los cuentos de un curso eligiendo grado y división.
 
 ## Configuración (en `Code.gs`)
 
@@ -76,4 +88,4 @@ Para que otros docentes lean las producciones, compartiles la **carpeta** desde 
 | «La app necesita que tu docente revise los permisos» | Ejecutá `instalar` otra vez y aceptá los permisos. |
 | Cuenta institucional sin la opción «Cualquier persona» | La organización lo bloquea: pedilo al administrador o usá una cuenta que lo permita. |
 
-**Privacidad:** solo se piden nombre, apellido, grado y división. En GitHub no queda ningún dato de los alumnos: todo se guarda en tu Drive. El ID de la carpeta, si lo pegás en `Code.gs`, solo vive en Apps Script (si también subís `Code.gs` al repo, podés dejar `CARPETA_ID` sin completar: `instalar` la recuerda igual).
+**Privacidad:** solo se piden nombre, apellido, grado y división. El listado de «Ver cuentos» muestra nombre y título a quien tenga el enlace de la app: compartilo solo con tu curso. En GitHub no queda ningún dato de los alumnos: todo se guarda en tu Drive. El ID de la carpeta, si lo pegás en `Code.gs`, solo vive en Apps Script (si también subís `Code.gs` al repo, podés dejar `CARPETA_ID` sin completar: `instalar` la recuerda igual).
