@@ -166,7 +166,6 @@ input[aria-invalid="true"] { border-color: var(--coral); background: var(--coral
 .chip-guardando { background: var(--celeste-claro); color: #144f80; }
 .chip-ok { background: var(--verde-claro); color: #1c5e31; }
 .chip-error { background: var(--coral-claro); color: #8a2219; white-space: normal; }
-.codigo-mini { font-size: .85rem; font-weight: 700; color: var(--tinta-suave); white-space: nowrap; }
 
 /* ---------- Bienvenida ---------- */
 .bienvenida { display: grid; grid-template-columns: 1fr 1.1fr; gap: 32px; align-items: center; min-height: 92vh; }
@@ -182,11 +181,8 @@ input[aria-invalid="true"] { border-color: var(--coral); background: var(--coral
 .fila-grado { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
 .caja-continuar { background: var(--turquesa-claro); border-radius: var(--radio); padding: 20px; margin-bottom: 18px; }
 .caja-continuar-texto { font-size: 1.15rem; }
-.caja-codigo { margin-top: 20px; border-radius: var(--radio-chico); background: var(--celeste-claro); padding: 4px 16px; }
-.caja-codigo summary { cursor: pointer; font-weight: 700; padding: 10px 0; min-height: 44px; }
-.caja-codigo-cuerpo { padding-bottom: 12px; }
-.fila-codigo { display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
-.fila-codigo input { flex: 1 1 180px; text-transform: uppercase; letter-spacing: .15em; font-weight: 700; }
+.caja-ver-cuentos { margin-top: 20px; border-radius: var(--radio-chico); background: var(--turquesa-claro); padding: 14px 16px 16px; }
+.caja-ver-cuentos p { margin: 0 0 10px; font-weight: 700; }
 
 /* ---------- Encabezados de pantalla ---------- */
 .encabezado-pantalla { display: flex; gap: 20px; align-items: center; border-radius: var(--radio); padding: 22px 26px; margin-bottom: 10px; box-shadow: var(--sombra-chica); }
@@ -194,6 +190,28 @@ input[aria-invalid="true"] { border-color: var(--coral); background: var(--coral
 .icono-grande { font-size: 3.4rem; line-height: 1; }
 .fondo-violeta { background: var(--violeta-claro); }
 .fondo-celeste { background: var(--celeste-claro); }
+.fondo-turquesa { background: var(--turquesa-claro); }
+
+/* ---------- Ver cuentos ---------- */
+.filtro-cuentos { display: grid; grid-template-columns: 1fr 1fr auto; gap: 0 16px; align-items: end; margin-top: 18px; padding: 20px 24px 6px; }
+.filtro-cuentos .btn { margin-bottom: 14px; }
+.mensaje-cuentos { margin: 14px 4px; }
+.lista-cuentos { display: grid; gap: 10px; }
+.lista-cuentos h3 { margin: 6px 0 4px; }
+.item-cuento {
+  display: grid; grid-template-columns: 92px minmax(0, 1fr) minmax(0, 1.3fr) 110px; gap: 14px; align-items: center;
+  width: 100%; text-align: left; border: 0; cursor: pointer; padding: 14px 18px; border-radius: 18px;
+  background: var(--blanco); box-shadow: inset 0 0 0 2px var(--borde), var(--sombra-chica);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.item-cuento:hover { transform: translateY(-2px); box-shadow: inset 0 0 0 3px var(--turquesa), 0 8px 18px rgba(34, 48, 74, .12); }
+.ic-grado { font-family: var(--fuente-titulos); font-weight: 800; font-size: 1.1rem; background: var(--amarillo-claro); border-radius: 12px; padding: 6px 10px; text-align: center; }
+.ic-nombre { font-weight: 700; }
+.ic-titulo { font-family: var(--fuente-titulos); font-weight: 700; font-size: 1.12rem; color: var(--violeta); }
+.ic-accion { font-weight: 700; color: var(--turquesa); white-space: nowrap; text-align: right; }
+.ic-estado { display: block; font-family: var(--fuente-texto); font-size: .8rem; font-weight: 700; color: var(--tinta-suave); }
+.encabezado-lista { display: grid; grid-template-columns: 92px minmax(0, 1fr) minmax(0, 1.3fr) 110px; gap: 14px; padding: 0 18px; font-weight: 700; color: var(--tinta-suave); font-size: .9rem; }
+.aviso-bloqueo { margin-top: 14px; }
 .subtitulo { margin: 26px 0 12px; }
 
 /* ---------- Tarjetas de selección ---------- */
@@ -365,7 +383,6 @@ input[aria-invalid="true"] { border-color: var(--coral); background: var(--coral
 .resultado-guardado.r-ok { border-left: 8px solid var(--verde); }
 .resultado-guardado.r-error { border-left: 8px solid var(--coral); }
 .resultado-guardado.r-pendiente { border-left: 8px solid var(--amarillo); }
-.codigo-grande { display: inline-block; font-family: var(--fuente-titulos); font-size: 1.8rem; letter-spacing: .12em; background: var(--amarillo-claro); padding: 4px 16px; border-radius: 12px; border: 2px dashed #e0b443; }
 .final-otras { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 .pulso { animation: pulso 1.8s ease-in-out infinite; }
 
@@ -407,6 +424,11 @@ input[aria-invalid="true"] { border-color: var(--coral); background: var(--coral
   .libro-titulo { font-size: 2rem; }
   .encabezado-pantalla { flex-direction: column; text-align: center; }
   .acciones-pantalla .btn { flex: 1 1 100%; }
+  .filtro-cuentos { grid-template-columns: 1fr 1fr; }
+  .filtro-cuentos .btn { grid-column: 1 / -1; }
+  .item-cuento { grid-template-columns: 70px 1fr; }
+  .item-cuento .ic-titulo, .item-cuento .ic-accion { grid-column: 2; }
+  .encabezado-lista { display: none; }
 }
 
 /* ---------- Impresión / guardar como PDF ---------- */
@@ -415,7 +437,7 @@ input[aria-invalid="true"] { border-color: var(--coral); background: var(--coral
   body { background: #fff; }
   .barra, .no-imprimir, .saltar, .aviso-flotante, .confeti, .capitulo-cabecera button { display: none !important; }
   .pantalla { display: none !important; }
-  #pantalla-vista { display: block !important; animation: none; }
+  #pantalla-vista:not([hidden]), #pantalla-leer:not([hidden]) { display: block !important; animation: none; }
   .contenedor { padding: 0; max-width: none; }
   .libro { box-shadow: none; padding: 0; border-radius: 0; max-width: none; }
   .capitulo, .libro-ficha { break-inside: avoid; }
