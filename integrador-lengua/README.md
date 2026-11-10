@@ -101,8 +101,8 @@ Todo está al principio de **`codigo.gs`**, en `CONFIG` y `BANCO`. `script.js` *
 | Qué cambiar | Dónde (en `codigo.gs`) |
 |---|---|
 | Intentos por desafío | `CONFIG.INTENTOS_MAX` (hoy 2; solo se califica el primero) |
-| Divisiones | `CONFIG.DIVISIONES` |
-| Número de lista máximo | `CONFIG.NUMERO_LISTA_MAX` |
+| Grados | `CONFIG.DIVISIONES` (hoy `['3º A', '3º B']`) |
+| Tiempo para terminar | `CONFIG.HORAS_PARA_TERMINAR` (hoy 3 horas desde que el alumno empieza) |
 | Umbral de acompañamiento | `CONFIG.UMBRAL_ACOMPANAMIENTO` (0.6 = 60 %) |
 | Mensajes de Lumi | `CONFIG.MENSAJES` |
 | Nombres de misiones, diálogos y textos de lectura | `BANCO.misiones[n].nombre`, `.intro`, `.lectura` |
@@ -126,9 +126,9 @@ Algunas reglas para editar:
 
 | Hoja | Contenido |
 |---|---|
-| **Resumen general** | Una fila por alumno: estado, % por misión, % por contenido, logro global, intentos, tiempo, abiertas pendientes y dibujos secretos |
+| **Resumen general** | Una fila por alumno: ID, nombre, apellido, grado, estado (En curso · Finalizado · Sin terminar), % por misión, % por contenido, logro global, intentos, tiempo y abiertas pendientes |
 | **Respuestas individuales** | Una fila por alumno y desafío: 1.er y último intento, respuesta esperada, si acertó en el 1.er intento, intentos, puntaje y tiempo |
-| **Análisis por contenidos** | Fórmulas automáticas: logro por contenido y por división, contenidos más difíciles, alumnos que necesitan acompañamiento y preguntas con más errores |
+| **Análisis por contenidos** | Fórmulas automáticas: logro por contenido y por grado, contenidos más difíciles, alumnos que necesitan acompañamiento y preguntas con más errores |
 | **Revisión docente** | Respuestas abiertas: escribí 0, 1 o 2 en la columna naranja **PUNTAJE DOCENTE** y se actualiza todo solo |
 | **Registro de intentos** | Respaldo de cada envío |
 | **Pruebas docentes** | Lo respondido en modo prueba |
@@ -140,9 +140,11 @@ El alumno **nunca** ve puntajes ni porcentajes: solo estrellas, tesoros y un dip
 
 ## El día de la evaluación
 
-- Cada alumno escribe su nombre, apellido, división y número de lista y elige **3 dibujos secretos**.
-- Si se cierra la pestaña, el alumno vuelve al enlace, toca **Continuar** y toca sus dibujos: el juego sigue donde estaba.
-- Si un alumno olvidó sus dibujos, están en la columna **Dibujos secretos** del Resumen.
+- Cada alumno escribe solo su **nombre**, su **apellido** y toca su **grado** (3º A o 3º B).
+- **El integrador se termina en esa clase.** Una vez finalizado, el alumno no puede volver a entrar. Si no lo termina, a las 3 horas de haber empezado el servidor deja de aceptar respuestas y en el Resumen figura **Sin terminar (se cerró la clase)**.
+- Si se cierra la pestaña o se apaga la Chromebook durante la clase, el alumno vuelve al enlace: en la misma computadora toca **Continuar**; en otra, escribe el mismo nombre, apellido y grado. El juego sigue donde estaba.
+- Pedí que escriban el nombre siempre igual. Mayúsculas y tildes no importan (Ana Gómez = ana gomez), pero «Anita» cuenta como otra persona.
+- Si hay dos alumnos con el mismo nombre y apellido en un grado, que uno agregue su segundo nombre.
 - Si se corta internet, Lumi guarda la respuesta y la reenvía sola. Mientras haya respuestas pendientes, en la barra superior aparece 📡 con un número. No cierren la pestaña hasta que desaparezca.
 
 ---
@@ -153,14 +155,14 @@ El alumno **nunca** ve puntajes ni porcentajes: solo estrellas, tesoros y un dip
 
 - Las soluciones están solo en el servidor.
 - El servidor corrige, valida cada dato y guarda el primer intento sin sobrescribirlo. Los envíos duplicados no suman intentos.
-- Cada sesión tiene una clave aleatoria. Con 6 intentos fallidos de dibujos, esa identidad se bloquea 10 minutos.
+- Cada sesión tiene una clave aleatoria guardada en la Chromebook. Un integrador finalizado o vencido no acepta más respuestas.
 - Los envíos simultáneos se guardan de a uno (`LockService`).
 - La planilla es privada.
 
 **Límites**
 
 - El acceso «Cualquier usuario» significa que cualquiera con la URL del servicio puede registrarse.
-- Los dibujos no son una contraseña fuerte: conviene supervisar el momento en que los eligen.
+- El ingreso es solo con nombre, apellido y grado, sin contraseña. Un compañero que escriba esos mismos datos en otra computadora entraría a esa aventura mientras no esté terminada. Los primeros intentos ya guardados no cambian, pero conviene supervisar la clase.
 - No se usa el correo de los alumnos.
 - Google limita las ejecuciones simultáneas por cuenta. Si hay demoras, las respuestas se reenvían solas.
 
