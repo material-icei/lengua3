@@ -328,3 +328,8 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 @media print{body{background:#fff} #marco{position:static} .hud,.no-print{display:none!important}}
 
 .pozo.lado{gap:8px}.pozo.lado .chip{font-size:19px;padding:6px 12px;width:100%}
+.registro{width:900px}
+.grados{display:flex;gap:18px}
+.grado{flex:1;border:4px solid #cbbf9f;background:#fff;border-radius:20px;font-family:'Baloo 2',system-ui,sans-serif;font-weight:800;font-size:40px;padding:14px 0;box-shadow:0 4px 0 rgba(0,0,0,.12)}
+.grado:hover{border-color:var(--verde)}
+.grado.sel{background:var(--amarillo);border-color:var(--amarillo-o)}
