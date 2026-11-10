@@ -33,13 +33,14 @@ var CONFIG = {
   SUBTITULO: 'Misión rescate',
   INTENTOS_MAX: 2,               // intentos por desafío (el 1.º es el que se califica)
   DURACION_ESTIMADA_MIN: 50,
-  DIVISIONES: ['3.º A', '3.º B', '3.º C'],
-  NUMERO_LISTA_MAX: 40,
+  DIVISIONES: ['3º A', '3º B'],
+  // El integrador se resuelve en una sola clase: pasado este tiempo desde que el
+  // alumno empezó, el servidor ya no acepta respuestas y lo marca "Sin terminar".
+  HORAS_PARA_TERMINAR: 3,
   UMBRAL_ACOMPANAMIENTO: 0.6,    // por debajo de este logro se sugiere acompañamiento
   // Clave del modo prueba docente. En Apps Script se puede cambiar también desde
   // Proyecto > Configuración > Propiedades de la secuencia de comandos (CLAVE_DOCENTE).
   CLAVE_DOCENTE: 'bosque2026',
-  ICONOS_CLAVE: ['🦉', '🌵', '🐝', '🦊', '🌻', '🐸'],
   CONTENIDOS: {
     ENC: 'Nota de enciclopedia',
     LEY: 'Leyenda',
@@ -72,7 +73,7 @@ var BANCO = {
     '¡Hola! Soy Lumi, una luciérnaga exploradora. ¡Qué suerte que llegaste!',
     'Anoche pasó la Niebla Dormilona por el Bosque Encantado. Bostezó tan fuerte que desordenó todo: escondió los libros, apagó el Árbol Luminoso y paró el reloj del bosque.',
     'Ahora los animales y las plantas no encuentran su camino. Para despertar al bosque tenemos que juntar cinco tesoros y abrir el Gran Portal de la Naturaleza.',
-    'Vas a usar todo lo que aprendiste este año. Si tenés dudas, tocá el botón 🔊 para escuchar o ❓ para pedir ayuda. ¿Vamos?'
+    'Vas a usar todo lo que aprendiste este año. Tenemos esta clase para recorrer las seis misiones, así que trabajá con calma pero sin parar. Si tenés dudas, tocá 🔊 para escuchar o ❓ para pedir ayuda. ¿Vamos?'
   ],
   final: [
     '¡Lo lograste! El Gran Portal se abrió y una luz cálida recorrió todo el bosque.',
@@ -922,8 +923,7 @@ var Correccion = (function () {
       banco: copia,
       config: {
         TITULO: CONFIG.TITULO, SUBTITULO: CONFIG.SUBTITULO, INTENTOS_MAX: CONFIG.INTENTOS_MAX,
-        DIVISIONES: CONFIG.DIVISIONES, NUMERO_LISTA_MAX: CONFIG.NUMERO_LISTA_MAX,
-        ICONOS_CLAVE: CONFIG.ICONOS_CLAVE, MENSAJES: CONFIG.MENSAJES
+        DIVISIONES: CONFIG.DIVISIONES, MENSAJES: CONFIG.MENSAJES
       }
     };
   }
@@ -935,30 +935,36 @@ var Correccion = (function () {
   function clave(s) {
     return normalizar(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   }
-  function idAlumno(division, numero) {
-    return String(division).replace(/[^0-9A-Za-z]/g, '') + '-' + ('0' + numero).slice(-2);
+  // ID legible y estable: grado + apellido + nombre (sin tildes ni espacios). Ej.: 3A-PEREZ-ANA
+  function idAlumno(division, nombre, apellido) {
+    var f = function (s) { return clave(s).replace(/[^a-z0-9]+/g, '').toUpperCase(); };
+    return String(division).replace(/[^0-9A-Za-z]/g, '') + '-' + f(apellido) + '-' + f(nombre);
+  }
+  // ¿Se terminó el tiempo de la clase para esta sesión?
+  function vencida(est, ahora) {
+    if (est.prueba || est.estado === 'Finalizado') return false;
+    return Date.parse(ahora) - Date.parse(est.inicio) > (CONFIG.HORAS_PARA_TERMINAR || 3) * 3600 * 1000;
+  }
+  function estadoActual(est, ahora) {
+    if (est.estado === 'Finalizado') return 'Finalizado';
+    return vencida(est, ahora) ? 'Sin terminar (se cerró la clase)' : 'En curso';
   }
 
   function validarDatos(dat) {
     if (!dat) return 'Faltan datos';
     if (normalizar(dat.nombre).length < 2) return 'Escribí tu nombre';
     if (normalizar(dat.apellido).length < 2) return 'Escribí tu apellido';
-    if (CONFIG.DIVISIONES.indexOf(dat.division) < 0) return 'Elegí tu grado y división';
-    var n = parseInt(dat.numero, 10);
-    if (!(n >= 1 && n <= CONFIG.NUMERO_LISTA_MAX)) return 'Elegí tu número de lista';
-    if (!Array.isArray(dat.clave) || dat.clave.length !== 3) return 'Elegí tus 3 dibujos secretos';
-    for (var i = 0; i < 3; i++) if (CONFIG.ICONOS_CLAVE.indexOf(dat.clave[i]) < 0) return 'Elegí tus 3 dibujos secretos';
+    if (CONFIG.DIVISIONES.indexOf(dat.division) < 0) return 'Elegí tu grado';
     return null;
   }
 
   function nuevoEstado(dat, token, ahora, prueba) {
     return {
       v: 1,
-      id: (prueba ? 'PRUEBA-' : '') + idAlumno(dat.division, dat.numero),
+      id: (prueba ? 'PRUEBA-' : '') + idAlumno(dat.division, dat.nombre, dat.apellido),
       token: token,
       nombre: normalizar(dat.nombre), apellido: normalizar(dat.apellido),
-      division: dat.division, numero: parseInt(dat.numero, 10),
-      clave: dat.clave.join(''),
+      division: dat.division,
       prueba: !!prueba,
       inicio: ahora, ultima: ahora, fin: null,
       estado: 'En curso',
@@ -984,6 +990,7 @@ var Correccion = (function () {
     if (e && e.cerrado) {
       return { publico: { ok: true, cerrado: true, yaCerrado: true, superado: !!e.superado, intento: e.intentos, pendiente: d.tipo === 'abierta' && e.docente == null }, cambio: false };
     }
+    if (vencida(est, ahora)) return { publico: { ok: false, error: 'El tiempo del integrador ya terminó. Avisale a tu seño.', vencida: true } };
     var err = validar(d, resp);
     if (err) return { publico: { ok: false, error: err, validacion: true } };
 
@@ -1069,7 +1076,7 @@ var Correccion = (function () {
   return {
     todos: todosLosDesafios, buscar: buscar, tokens: tokens, limpiar: limpiar, validar: validar, corregir: corregir,
     textoRespuesta: textoRespuesta, textoEsperado: textoEsperado, bancoPublico: bancoPublico,
-    validarDatos: validarDatos, nuevoEstado: nuevoEstado, mismaPersona: mismaPersona, idAlumno: idAlumno,
+    validarDatos: validarDatos, nuevoEstado: nuevoEstado, vencida: vencida, estadoActual: estadoActual, mismaPersona: mismaPersona, idAlumno: idAlumno,
     procesar: procesar, registrarCierre: registrarCierre, resumen: resumen, estadoPublico: estadoPublico,
     puntajeDe: puntajeDe, esCorregibleAuto: esCorregibleAuto, puntajeMaximoTotal: puntajeMaximoTotal, normalizar: normalizar
   };
@@ -1154,15 +1161,15 @@ function claveDocente() {
 /*  Encabezados                                                        */
 /* ------------------------------------------------------------------ */
 function encResumen() {
-  var h = ['ID', 'Nombre', 'Apellido', 'División', 'N.º lista', 'Inicio', 'Última actividad', 'Estado', 'Desafíos realizados'];
+  var h = ['ID', 'Nombre', 'Apellido', 'Grado', 'Inicio', 'Última actividad', 'Estado', 'Desafíos realizados'];
   BANCO.misiones.forEach(function (m, i) { h.push('Misión ' + (i + 1) + ' · ' + m.eje); });
   Object.keys(CONFIG.CONTENIDOS).forEach(function (k) { h.push(CONFIG.CONTENIDOS[k]); });
-  return h.concat(['Logro global (corregido)', 'Puntos obtenidos', 'Puntos corregidos (máx.)', 'Total de intentos', 'Tiempo total (min)', 'Abiertas pendientes de revisión', 'Dibujos secretos', 'Fin']);
+  return h.concat(['Logro global (corregido)', 'Puntos obtenidos', 'Puntos corregidos (máx.)', 'Total de intentos', 'Tiempo total (min)', 'Abiertas pendientes de revisión', 'Fin']);
 }
-var ENC_RESP = ['ID', 'Nombre', 'División', 'Misión', 'Desafío', 'Pregunta', 'Contenido', 'Habilidad', 'Espacio curricular', 'Tipo de comprensión',
+var ENC_RESP = ['ID', 'Nombre', 'Grado', 'Misión', 'Desafío', 'Pregunta', 'Contenido', 'Habilidad', 'Espacio curricular', 'Tipo de comprensión',
   'Respuesta (1.er intento)', 'Respuesta (último intento)', 'Respuesta esperada / criterio', 'Correcto en 1.er intento', 'N.º de intentos',
   'Puntaje obtenido', 'Puntaje máximo', 'Tiempo (s)', 'Estado', 'Fecha y hora (1.er intento)', 'Última actualización', 'Clave'];
-var ENC_REV = ['ID', 'Nombre', 'División', 'Desafío', 'Consigna', 'Respuesta del alumno', 'Criterio de corrección', 'Puntaje automático', 'Puntaje máximo',
+var ENC_REV = ['ID', 'Nombre', 'Grado', 'Desafío', 'Consigna', 'Respuesta del alumno', 'Criterio de corrección', 'Puntaje automático', 'Puntaje máximo',
   'PUNTAJE DOCENTE (completar)', 'Comentario docente', 'Estado', 'Fecha', 'Clave'];
 var ENC_INT = ['Fecha y hora', 'ID', 'Desafío', 'Intento', 'Respuesta', 'Correcto', 'Aciertos', 'Total', 'Tiempo (s)', 'Id de envío'];
 var ENC_PRU = ['Fecha y hora', 'Sesión de prueba', 'Desafío', 'Intento', 'Respuesta', 'Esperada', 'Correcto', 'Puntaje', 'Máximo'];
@@ -1196,7 +1203,6 @@ function configurarPlanilla() {
     SpreadsheetApp.newConditionalFormatRule().whenNumberLessThan(CONFIG.UMBRAL_ACOMPANAMIENTO).setBackground('#f4cccc').setRanges([rangoGlobal]).build(),
     SpreadsheetApp.newConditionalFormatRule().whenNumberGreaterThanOrEqualTo(0.8).setBackground('#d9ead3').setRanges([rangoGlobal]).build()
   ]);
-  r.getRange(1, idx(enc, 'Dibujos secretos')).setNote('Si un alumno olvida sus dibujos, consultá aquí cuáles eligió.');
 
   var rs = crear(HOJAS.RESP, ENC_RESP, '#cfe2f3');
   rs.hideColumns(ENC_RESP.length);
@@ -1228,7 +1234,7 @@ function armarAnalisis(ss) {
   var a = ss.getSheetByName(HOJAS.ANALISIS) || ss.insertSheet(HOJAS.ANALISIS);
   a.clear();
   var enc = encResumen(), R = "'" + HOJAS.RESUMEN + "'!", P = "'" + HOJAS.RESP + "'!";
-  var cDiv = col(idx(enc, 'División')), cGlob = col(idx(enc, 'Logro global (corregido)')), cEst = col(idx(enc, 'Estado'));
+  var cDiv = col(idx(enc, 'Grado')), cGlob = col(idx(enc, 'Logro global (corregido)')), cEst = col(idx(enc, 'Estado'));
   var divs = CONFIG.DIVISIONES;
   var fila = 1;
   var titulo = function (t) { a.getRange(fila, 1).setValue(t).setFontWeight('bold').setFontSize(13).setBackground('#d9ead3'); fila++; };
@@ -1268,8 +1274,8 @@ function armarAnalisis(ss) {
   a.getRange(iniM, 2, fila - iniM, 1 + divs.length).setNumberFormat('0%');
   fila++;
 
-  titulo('4. Resultados por división');
-  a.getRange(fila, 1, 1, 4).setValues([['División', 'Alumnos', 'Finalizados', 'Logro global promedio']]).setFontWeight('bold'); fila++;
+  titulo('4. Resultados por grado');
+  a.getRange(fila, 1, 1, 4).setValues([['Grado', 'Alumnos', 'Finalizados', 'Logro global promedio']]).setFontWeight('bold'); fila++;
   var iniD = fila;
   divs.forEach(function (d) {
     a.getRange(fila, 1, 1, 4).setValues([[d,
@@ -1282,7 +1288,7 @@ function armarAnalisis(ss) {
   fila++;
 
   titulo('5. Estudiantes que necesitan acompañamiento (logro global menor a ' + Math.round(CONFIG.UMBRAL_ACOMPANAMIENTO * 100) + '%)');
-  a.getRange(fila, 1, 1, 5).setValues([['ID', 'Nombre', 'Apellido', 'División', 'Logro global']]).setFontWeight('bold'); fila++;
+  a.getRange(fila, 1, 1, 5).setValues([['ID', 'Nombre', 'Apellido', 'Grado', 'Logro global']]).setFontWeight('bold'); fila++;
   var cond = R + cGlob + '2:' + cGlob + '<' + CONFIG.UMBRAL_ACOMPANAMIENTO + ',' + R + cGlob + '2:' + cGlob + '<>""';
   a.getRange(fila, 1).setFormula('=IFERROR(FILTER(' + R + 'A2:D,' + cond + '),"Nadie por ahora")');
   a.getRange(fila, 5).setFormula('=IFERROR(FILTER(' + R + cGlob + '2:' + cGlob + ',' + cond + '),"")');
@@ -1353,20 +1359,19 @@ function apiRegistrar(dat) {
     if (dat.prueba) {
       if (String(dat.claveDocente || '') !== claveDocente()) return { ok: false, error: 'Clave docente incorrecta.' };
       var tkp = nuevoToken();
-      var ep = Correccion.nuevoEstado({ nombre: 'Prueba', apellido: 'Docente', division: CONFIG.DIVISIONES[0], numero: 1, clave: CONFIG.ICONOS_CLAVE.slice(0, 3) }, tkp, ahoraISO(), true);
+      var ep = Correccion.nuevoEstado({ nombre: 'Prueba', apellido: 'Docente', division: CONFIG.DIVISIONES[0] }, tkp, ahoraISO(), true);
       ep.id = 'PRUEBA-' + tkp.slice(0, 6);
       guardarSesion({ est: ep });
       return { ok: true, token: tkp, estado: Correccion.estadoPublico(ep), nuevo: true };
     }
     var err = Correccion.validarDatos(dat);
     if (err) return { ok: false, error: err };
-    var id = Correccion.idAlumno(dat.division, dat.numero);
-    var cache = CacheService.getScriptCache(), kf = 'fallos_' + id, fallos = +(cache.get(kf) || 0);
+    var id = Correccion.idAlumno(dat.division, dat.nombre, dat.apellido);
     var ex = cargarPorId(id);
     if (ex) {
-      if (fallos >= 6) return { ok: false, error: 'Hubo muchos intentos con datos distintos. Pedile ayuda a tu seño.' };
-      if (!Correccion.mismaPersona(ex.est, dat)) { cache.put(kf, String(fallos + 1), 600); return { ok: false, error: 'Ese número de lista ya lo está usando otro explorador de ' + dat.division + '. Revisá tu número o avisale a tu seño.' }; }
-      if (ex.est.clave !== dat.clave.join('')) { cache.put(kf, String(fallos + 1), 600); return { ok: false, error: 'Los dibujos secretos no coinciden. Probá otra vez o pedile ayuda a tu seño.' }; }
+      // Mismo nombre, apellido y grado: es el mismo alumno (por ejemplo, se le apagó la Chromebook)
+      if (ex.est.estado === 'Finalizado') return { ok: false, error: '¡Ya terminaste el integrador! Si creés que es un error, avisale a tu seño.' };
+      if (Correccion.vencida(ex.est, ahoraISO())) return { ok: false, error: 'El tiempo del integrador ya terminó. Avisale a tu seño.' };
       return { ok: true, token: ex.est.token, estado: Correccion.estadoPublico(ex.est), nuevo: false };
     }
     var tk = nuevoToken();
@@ -1381,7 +1386,8 @@ function apiRegistrar(dat) {
 function apiReanudar(p) {
   try {
     var s = cargarPorToken(p && p.token);
-    return s ? { ok: true, estado: Correccion.estadoPublico(s.est) } : { ok: false };
+    if (!s || s.est.estado === 'Finalizado' || Correccion.vencida(s.est, ahoraISO())) return { ok: false };
+    return { ok: true, estado: Correccion.estadoPublico(s.est) };
   } catch (e) { return { ok: false }; }
 }
 
@@ -1433,10 +1439,10 @@ function vacio(x) { return x === null || x === undefined ? '' : x; }
 
 function filaResumen(est) {
   var r = Correccion.resumen(est);
-  var fila = [est.id, est.nombre, est.apellido, est.division, est.numero, fechaLocal(est.inicio), fechaLocal(est.ultima), est.estado, r.hechos + ' de ' + r.total];
+  var fila = [est.id, est.nombre, est.apellido, est.division, fechaLocal(est.inicio), fechaLocal(est.ultima), Correccion.estadoActual(est, ahoraISO()), r.hechos + ' de ' + r.total];
   BANCO.misiones.forEach(function (m) { fila.push(vacio(r.mision[m.id])); });
   Object.keys(CONFIG.CONTENIDOS).forEach(function (k) { fila.push(vacio(r.contenido[k])); });
-  fila.push(vacio(r.global), r.puntos, r.puntosMax, r.intentos, Math.round(r.tiempoMs / 6000) / 10, r.pendientes, est.clave, fechaLocal(est.fin));
+  fila.push(vacio(r.global), r.puntos, r.puntosMax, r.intentos, Math.round(r.tiempoMs / 6000) / 10, r.pendientes, fechaLocal(est.fin));
   return fila;
 }
 function escribirResumen(est) {
