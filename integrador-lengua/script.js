@@ -5,7 +5,7 @@
    ►►► CONFIGURACIÓN: pegá acá la URL del servicio de Google Apps Script
        (la que termina en /exec, ver README.md, paso 8).              ◄◄◄
    ===================================================================== */
-var URL_SERVIDOR = 'https://script.google.com/a/colegioicei.edu.ar/macros/s/AKfycbyRvpfyB0cr6JQx48ryasdpCqm_xjuR0nHCUFIzrQO9_7VdX358/exec';
+var URL_SERVIDOR = 'https://script.google.com/macros/s/AKfycby6cnjoIfi725dWZFJqf3ta7hEDhq7fCmET33h925TPnS8LdLrJTsgoXqqM_6OsvcsT-w/exec';
 
 /* ---------------------------------------------------------------------
    Comunicación con el servicio (Apps Script).
