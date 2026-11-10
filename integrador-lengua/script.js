@@ -5,7 +5,7 @@
    ►►► CONFIGURACIÓN: pegá acá la URL del servicio de Google Apps Script
        (la que termina en /exec, ver README.md, paso 8).              ◄◄◄
    ===================================================================== */
-var URL_SERVIDOR = 'https://script.google.com/macros/s/AKfycby6cnjoIfi725dWZFJqf3ta7hEDhq7fCmET33h925TPnS8LdLrJTsgoXqqM_6OsvcsT-w/exec';
+var URL_SERVIDOR = 'https://script.google.com/macros/s/AKfycbzzgeK6n2ZJBJISnimsbG7KA2clskHUNnAAOlux18gtc-osweZnvqxhnrEvjXfHVK-k1Q/exec';
 
 /* ---------------------------------------------------------------------
    Comunicación con el servicio (Apps Script).
@@ -473,8 +473,7 @@ function iniciarApp() {
         if (!r || !r.ok) { Almacen.del('token'); return; }
         var cont = q('.continuar', c);
         cont.innerHTML = '<button class="btn verde">▶ Continuar como ' + esc(r.estado.nombre) + '</button>';
-        // Para continuar se piden los dibujos secretos (protege Chromebooks compartidas)
-        cont.firstChild.onclick = function () { registro({ nombre: r.estado.nombre, apellido: r.estado.apellido, division: r.estado.division, numero: +String(r.estado.id).split('-').pop() }); };
+        cont.firstChild.onclick = function () { entrar(tk, r.estado, false); };
       }).catch(function () { });
     }
   }
@@ -487,43 +486,31 @@ function iniciarApp() {
   }
   function modoPrueba() {
     pedirClave(function (k) {
-      Servidor.registrar({ nombre: 'Prueba', apellido: 'Docente', division: CFG.DIVISIONES[0], numero: 1, clave: CFG.ICONOS_CLAVE.slice(0, 3), prueba: true, claveDocente: k })
+      Servidor.registrar({ nombre: 'Prueba', apellido: 'Docente', division: CFG.DIVISIONES[0], prueba: true, claveDocente: k })
         .then(function (r) { if (!r.ok) return avisar(r.error); entrar(r.token, r.estado, true, true); })
         .catch(function () { avisar('No se pudo conectar con el servidor.'); });
     });
   }
 
-  /* ===== Registro ===== */
-  function registro(pre) {
+  /* ===== Registro: solo nombre, apellido y grado ===== */
+  function registro() {
     var c = limpiar('mapa');
-    var nums = ''; for (var i = 1; i <= CFG.NUMERO_LISTA_MAX; i++) nums += '<button type="button" data-n="' + i + '">' + i + '</button>';
-    var iconos = CFG.ICONOS_CLAVE.map(function (ic) { return '<button type="button" data-ic="' + ic + '" aria-label="Dibujo ' + ic + '">' + ic + '</button>'; }).join('');
-    var opDiv = CFG.DIVISIONES.map(function (d) { return '<option>' + esc(d) + '</option>'; }).join('');
+    var grados = CFG.DIVISIONES.map(function (d) { return '<button type="button" class="grado" data-g="' + esc(d) + '" role="radio" aria-checked="false">' + esc(d) + '</button>'; }).join('');
     c.innerHTML = '<form class="panel registro" autocomplete="off" novalidate>' +
       '<h2>' + ILU.lumi() + 'Tu pasaporte de explorador</h2>' +
-      '<div class="campo"><label for="f-nom">Nombre</label><input id="f-nom" maxlength="40" required></div>' +
-      '<div class="campo"><label for="f-ape">Apellido</label><input id="f-ape" maxlength="40" required></div>' +
-      '<div class="campo"><label for="f-div">Grado y división</label><select id="f-div"><option value="">Elegí…</option>' + opDiv + '</select></div>' +
-      '<div class="campo"><label>Número de lista <span class="nota-chica">(te lo dice tu seño)</span></label><div class="numeros">' + nums + '</div></div>' +
-      '<div class="campo" style="grid-column:1/-1"><label>Elegí 3 dibujos secretos y acordate del orden. Sirven para volver a tu aventura desde otra compu.</label>' +
-      '<div class="claves">' + iconos + '<div class="clave-elegida"><span></span><span></span><span></span></div><button type="button" class="btn blanco chico" data-a="borrar">Borrar</button></div></div>' +
+      '<div class="campo"><label for="f-nom">Nombre</label><input id="f-nom" maxlength="40"></div>' +
+      '<div class="campo"><label for="f-ape">Apellido</label><input id="f-ape" maxlength="40"></div>' +
+      '<div class="campo" style="grid-column:1/-1"><label id="l-gr">Grado</label><div class="grados" role="radiogroup" aria-labelledby="l-gr">' + grados + '</div></div>' +
+      '<p class="nota-chica" style="grid-column:1/-1;margin:0">⏰ La aventura se completa en esta clase. Escribí tu nombre y apellido como siempre, así tu seño te encuentra.</p>' +
       '<div class="acciones"><button type="button" class="btn blanco" data-a="volver">◀ Volver</button><div class="msg-error" role="alert"></div><button type="submit" class="btn verde">¡Listo! ▶</button></div>' +
       '</form>';
-    var num = null, clave = [];
-    qa('[data-n]', c).forEach(function (b) { b.onclick = function () { qa('[data-n]', c).forEach(function (x) { x.classList.remove('sel'); }); b.classList.add('sel'); num = +b.dataset.n; Sonido.clic(); }; });
-    var pintarClave = function () { qa('.clave-elegida span', c).forEach(function (s, i) { s.textContent = clave[i] || ''; }); };
-    qa('[data-ic]', c).forEach(function (b) { b.onclick = function () { if (clave.length < 3) { clave.push(b.dataset.ic); pintarClave(); Sonido.clic(); } }; });
-    q('[data-a=borrar]', c).onclick = function () { clave = []; pintarClave(); };
+    var grado = null;
+    qa('[data-g]', c).forEach(function (b) { b.onclick = function () { qa('[data-g]', c).forEach(function (x) { x.classList.toggle('sel', x === b); x.setAttribute('aria-checked', x === b); }); grado = b.dataset.g; Sonido.clic(); }; });
     q('[data-a=volver]', c).onclick = portada;
-    if (pre) {
-      q('#f-nom', c).value = pre.nombre; q('#f-ape', c).value = pre.apellido; q('#f-div', c).value = pre.division;
-      var bn = q('[data-n="' + pre.numero + '"]', c); if (bn) bn.click();
-      q('h2', c).lastChild.textContent = '¡Hola de nuevo! Tocá tus 3 dibujos secretos';
-    }
     q('form', c).onsubmit = function (ev) {
       ev.preventDefault();
-      var d = { nombre: q('#f-nom', c).value, apellido: q('#f-ape', c).value, division: q('#f-div', c).value, numero: num, clave: clave };
-      var err = !d.nombre.trim() ? 'Escribí tu nombre.' : !d.apellido.trim() ? 'Escribí tu apellido.' : !d.division ? 'Elegí tu grado y división.' : !num ? 'Tocá tu número de lista.' : clave.length < 3 ? 'Elegí tus 3 dibujos secretos.' : '';
+      var d = { nombre: q('#f-nom', c).value, apellido: q('#f-ape', c).value, division: grado };
+      var err = d.nombre.trim().length < 2 ? 'Escribí tu nombre.' : d.apellido.trim().length < 2 ? 'Escribí tu apellido.' : !grado ? 'Tocá tu grado.' : '';
       var me = q('.msg-error', c);
       if (err) { me.textContent = err; return; }
       me.textContent = 'Abriendo tu pasaporte…';
@@ -534,7 +521,7 @@ function iniciarApp() {
         entrar(r.token, r.estado, r.nuevo);
       }).catch(function () { btn.disabled = false; me.textContent = 'No hay conexión con el bosque. Probá de nuevo en un ratito.'; });
     };
-    if (pre) q('[data-ic]', c).focus(); else q('#f-nom', c).focus();
+    q('#f-nom', c).focus();
   }
 
   function entrar(token, estado, nuevo, prueba) {
@@ -896,7 +883,7 @@ function iniciarApp() {
     };
     function terminar(r) {
       enviando = false; btn.disabled = false;
-      if (!r.ok) { decir(esc(r.error || 'Algo salió mal. Probá otra vez.'), 'info'); if (r.error && /sesi/i.test(r.error)) portada(); return; }
+      if (!r.ok) { decir(esc(r.error || 'Algo salió mal. Probá otra vez.'), 'info'); if (r.vencida) { btn.disabled = true; w.style.pointerEvents = 'none'; Almacen.del('token'); } else if (r.error && /sesi/i.test(r.error)) portada(); return; }
       if (!r.offline && !r.yaCerrado) S.estado.desafios[d.id] = { intentos: r.intento, cerrado: r.cerrado, superado: r.superado };
       if (r.yaCerrado) S.estado.desafios[d.id] = { intentos: r.intento, cerrado: true, superado: r.superado };
       var M = CFG.MENSAJES, extra = r.esperado ? '<br><small><b>Respuesta esperada (solo modo prueba):</b> ' + esc(r.esperado) + ' · Puntaje 1.er intento: ' + r.puntaje + '/' + d.puntos + '</small>' : '';
