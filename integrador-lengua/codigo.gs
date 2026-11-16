@@ -6,15 +6,14 @@
    ===================================================================== */
 
 /* =====================================================================
-   BANCO DE DESAFÍOS Y CONFIGURACIÓN — "El misterio del Bosque Encantado"
+   BANCO DE DESAFÍOS Y CONFIGURACIÓN
+   «El misterio de la hamburguesa perdida: misión energía»
+   Integrador: Prácticas del Lenguaje (2.º período) + proyecto
+   «Del plato a la energía» (cuerpo y alimentación) + Ambiente.
    ---------------------------------------------------------------------
-   Este es el ÚNICO archivo que la docente necesita editar para cambiar
-   textos, preguntas, respuestas, puntajes, intentos o mensajes.
-
-   • En Google Apps Script este archivo se llama  Banco.gs  y vive SOLO
-     en el servidor: las soluciones nunca llegan a la computadora del
-     alumno (se envía una copia sin el campo "solucion").
-   • Cada desafío tiene:
+   Es la ÚNICA parte que la docente necesita editar. Vive solo en el
+   servidor: al alumno le llega una copia SIN el campo "solucion".
+   Cada desafío tiene:
        id          identificador único (no cambiarlo una vez aplicado)
        tipo        opcion | multiple | asignar | ordenar | completar |
                    marcar | colorear | abierta | escritura
@@ -29,188 +28,206 @@
    ===================================================================== */
 
 var CONFIG = {
-  TITULO: 'El misterio del Bosque Encantado',
-  SUBTITULO: 'Misión rescate',
+  TITULO: 'El misterio de la hamburguesa perdida',
+  SUBTITULO: 'Misión energía',
+  MARCA: 'Misión energía',
+  INTRO: 'En el gran picnic del Bosque Encantado desapareció una hamburguesa. ¿Alguien se la llevó? ¿Desapareció… o se transformó? ¿Te animás a ser detective y ayudar a Lumi a resolver el misterio?',
+  DIPLOMA: 'por resolver el misterio de la hamburguesa perdida y descubrir cómo nuestro cuerpo transforma los alimentos en energía, usando todo lo que aprendió en Prácticas del Lenguaje y Ciencias Naturales.',
   INTENTOS_MAX: 2,               // intentos por desafío (el 1.º es el que se califica)
-  DURACION_ESTIMADA_MIN: 50,
+  DURACION_ESTIMADA_MIN: 55,
   DIVISIONES: ['3º A', '3º B'],
   // El integrador se resuelve en una sola clase: pasado este tiempo desde que el
   // alumno empezó, el servidor ya no acepta respuestas y lo marca "Sin terminar".
   HORAS_PARA_TERMINAR: 3,
   UMBRAL_ACOMPANAMIENTO: 0.6,    // por debajo de este logro se sugiere acompañamiento
-  // Clave del modo prueba docente. En Apps Script se puede cambiar también desde
-  // Proyecto > Configuración > Propiedades de la secuencia de comandos (CLAVE_DOCENTE).
-  CLAVE_DOCENTE: 'bosque2026',
+  // Clave del modo prueba docente (se puede cambiar desde el menú de la planilla).
+  CLAVE_DOCENTE: 'energia2026',
   CONTENIDOS: {
-    ENC: 'Nota de enciclopedia',
+    INS: 'Texto instructivo',
     LEY: 'Leyenda',
-    CUE: 'Cuento maravilloso',
-    EST: 'Estructura narrativa',
-    CLA: 'Clases de palabras',
-    CON: 'Concordancia',
-    TIE: 'Tiempos verbales',
     ORA: 'Tipos de oraciones',
+    VER: 'Verbos y tiempos verbales',
+    SUS: 'Sustantivos, artículos y adjetivos (género y número)',
+    NAR: 'Narración: inicio, desarrollo y final',
     LIT: 'Comprensión literal',
     INF: 'Comprensión inferencial',
     OPI: 'Opinión personal',
-    CN:  'Ciencias Naturales'
+    NUT: 'Alimentación y nutrientes',
+    SIS: 'Sistemas digestivo y respiratorio',
+    HAB: 'Hábitos saludables y cuidado del agua',
+    SVI: 'Seres vivos e inertes'
   },
   MENSAJES: {
-    correcto: ['¡Excelente, explorador!', '¡Lo lograste! El bosque brilla un poquito más.', '¡Muy bien! Encontraste la pista.', '¡Genial! Sigamos.'],
+    correcto: ['¡Excelente, detective!', '¡Lo lograste! Encontraste una pista.', '¡Muy bien! El misterio se aclara un poco más.', '¡Genial! Sigamos investigando.'],
     reintento: ['Casi… Mirá otra vez con atención y probá de nuevo.', 'Todavía no. ¡Releé la pista y volvé a intentar!'],
-    agotado: ['Lumi guardó tu respuesta en su farolito. ¡Seguimos la aventura!', 'Tu respuesta quedó guardada. ¡Vamos al próximo desafío!'],
+    agotado: ['Lumi guardó tu respuesta en su libreta de detective. ¡Seguimos!', 'Tu respuesta quedó guardada. ¡Vamos a la próxima pista!'],
     abierta: ['¡Gracias por contarme lo que pensás! Tu seño va a leer tu respuesta.'],
     sinConexion: ['Se cortó la conexión, pero Lumi guardó tu respuesta. Se enviará sola cuando vuelva internet.']
   }
 };
 
 var BANCO = {
-  personajeGuia: {
-    nombre: 'Lumi',
-    descripcion: 'una luciérnaga exploradora que lleva un farolito de luz en su pancita'
-  },
+  personajeGuia: { nombre: 'Lumi', descripcion: 'una luciérnaga detective con un farolito en la pancita' },
   prologo: [
-    '¡Hola! Soy Lumi, una luciérnaga exploradora. ¡Qué suerte que llegaste!',
-    'Anoche pasó la Niebla Dormilona por el Bosque Encantado. Bostezó tan fuerte que desordenó todo: escondió los libros, apagó el Árbol Luminoso y paró el reloj del bosque.',
-    'Ahora los animales y las plantas no encuentran su camino. Para despertar al bosque tenemos que juntar cinco tesoros y abrir el Gran Portal de la Naturaleza.',
-    'Vas a usar todo lo que aprendiste este año. Tenemos esta clase para recorrer las seis misiones, así que trabajá con calma pero sin parar. Si tenés dudas, tocá 🔊 para escuchar o ❓ para pedir ayuda. ¿Vamos?'
+    '¡Hola! Soy Lumi. Anoche hicimos un gran picnic en el Bosque Encantado y… ¡desapareció la hamburguesa de Don Ramiro, el búho!',
+    'Algunos dicen que alguien se la robó. Otros dicen que se esfumó. Yo creo que hay que investigar: ¿la hamburguesa desapareció o se transformó en otra cosa?',
+    'Vamos a recorrer seis estaciones del bosque y juntar cinco pistas. Con ellas vamos a abrir el Laboratorio de la Energía, donde se resuelve el misterio.',
+    'Tenemos esta clase para resolverlo, así que trabajá con calma pero sin parar. Si tenés dudas, tocá 🔊 para escuchar o ❓ para pedir ayuda. ¿Vamos?'
   ],
   final: [
-    '¡Lo lograste! El Gran Portal se abrió y una luz cálida recorrió todo el bosque.',
-    'El cardón guarda su agua, las luciérnagas brillan, las semillas crecen hacia el sol y las abejas vuelven a visitar las flores.',
-    'La Niebla Dormilona se despertó de buen humor y prometió no volver a desordenar nada. ¡Gracias, explorador!'
+    '¡Misterio resuelto! La hamburguesa no desapareció: Don Ramiro se la comió en el picnic, ¡y después se olvidó!',
+    'Su sistema digestivo la transformó en nutrientes. La sangre llevó esos nutrientes, junto con el oxígeno que entra por los pulmones, a todo su cuerpo.',
+    'Así obtuvo la energía para volar toda la noche. ¡Los alimentos no se pierden: se transforman en energía para vivir, jugar y crecer! Gracias, detective.'
   ],
 
   misiones: [
     /* =========================== MISIÓN 1 =========================== */
     {
       id: 'M1',
-      nombre: 'El archivo secreto del bosque',
-      eje: 'Nota de enciclopedia',
-      lugar: 'La biblioteca del tronco hueco',
-      escena: 'archivo',
-      personaje: { nombre: 'Don Ramiro', quien: 'el búho bibliotecario', emoji: '🦉' },
-      objeto: { emoji: '🔍', nombre: 'Lupa del Archivo' },
+      nombre: 'La cocina del cuerpo',
+      eje: 'Texto instructivo y alimentación',
+      lugar: 'La cocina del picnic',
+      escena: 'cocina',
+      personaje: { nombre: 'Doña Coneja', quien: 'la cocinera del picnic', emoji: '🐰' },
+      objeto: { emoji: '🍽️', nombre: 'Plato Equilibrado' },
       intro: [
-        'Don Ramiro: ¡Uh, qué lío! La Niebla Dormilona mezcló todas las páginas de mi enciclopedia.',
-        'Lumi: Encontramos una página sobre el cardón, un cactus del norte argentino. Leela con atención: guarda un código secreto.'
+        'Doña Coneja: ¡Qué lío! Para el picnic preparé brochetas de frutas siguiendo una receta, y alguien desordenó mi recetario.',
+        'Lumi: Las recetas son textos instructivos. Leela con atención: además de enseñarnos a cocinar, nos da pistas sobre lo que comemos.'
       ],
       lectura: {
-        tipo: 'enciclopedia',
-        titulo: 'El cardón',
-        bloques: [
-          { zona: 'z-sub1', subtitulo: '¿Cómo es?', texto: 'El cardón es un cactus muy alto que vive en los cerros secos y soleados del norte de la Argentina, como los de Jujuy y Salta. Puede ser más alto que una casa y tiene brazos que crecen hacia arriba.' },
-          { subtitulo: 'Un guardián del agua', texto: 'Su **tallo** es grueso y guarda agua en su interior. Sus **raíces** son largas y están cerca de la superficie: así absorben rápido el agua cuando llueve. Las **espinas** son hojas transformadas. Como son finitas, el cardón pierde muy poca agua. Además, lo protegen de los animales que quieren comerlo.' },
-          { subtitulo: 'Amigos del cardón', texto: 'El cardón da flores blancas y grandes. Algunos insectos, aves y murciélagos se alimentan de su néctar y llevan el polen de una flor a otra.' }
+        tipo: 'receta',
+        titulo: 'Brochetas de frutas con yogur',
+        porciones: 'Para 4 personas',
+        ingredientes: ['1 banana', '2 mandarinas', '10 frutillas', '1 manzana', '1 pote de yogur natural (200 g)', '1 cucharada de avena'],
+        utensilios: ['Tabla y cuchillo sin punta (con ayuda de un adulto)', 'Palitos de brochette', 'Un bol'],
+        pasos: [
+          '**Lavar** las manos y las frutas.',
+          '**Pelar** la banana y las mandarinas.',
+          '**Cortar** las frutas en trozos, con ayuda de un adulto.',
+          '**Pinchar** los trozos en los palitos, alternando colores.',
+          '**Mezclar** el yogur con la avena en el bol.',
+          '**Servir** las brochetas con el yogur para mojar.'
         ],
-        epigrafe: 'Cardones en los cerros de Jujuy.',
-        datos: ['Crece muy despacio: tarda muchos años en crecer apenas un metro.', 'Algunos cardones viven más de cien años.'],
-        fuente: 'Fuente: Enciclopedia de los Seres Vivos del Bosque Encantado, tomo 2.'
+        dato: 'Las frutas aportan vitaminas y minerales; el yogur, proteínas; y la avena, hidratos de carbono que nos dan energía.'
       },
       desafios: [
         {
           id: 'M1D1', tipo: 'asignar', vista: 'zonas', puntos: 2,
-          consigna: 'Don Ramiro perdió los carteles de su página. Llevá cada cartel al número que corresponde.',
-          ayuda: 'Tocá un cartel y después tocá el número de la página. También podés arrastrarlo.',
-          contenidos: ['ENC'], espacio: 'Prácticas del Lenguaje', comprension: '',
-          habilidad: 'Identifica los elementos paratextuales de una nota de enciclopedia.',
+          consigna: 'Doña Coneja perdió los carteles de su receta. Llevá cada cartel al número que corresponde.',
+          ayuda: 'Tocá un cartel y después tocá el número de la receta. También podés arrastrarlo.',
+          contenidos: ['INS'], espacio: 'Prácticas del Lenguaje', comprension: '',
+          habilidad: 'Reconoce las partes de un texto instructivo (receta).',
           criterio: 'Un acierto por cartel ubicado correctamente (5). Puntaje proporcional.',
-          bins: [
-            { id: 'z1', texto: '1' }, { id: 'z2', texto: '2' }, { id: 'z3', texto: '3' }, { id: 'z4', texto: '4' }, { id: 'z5', texto: '5' }
-          ],
-          chips: [
-            { id: 'e', texto: 'Epígrafe' }, { id: 'a', texto: 'Título' }, { id: 'd', texto: 'Fuente' }, { id: 'b', texto: 'Subtítulo' }, { id: 'c', texto: 'Datos curiosos' }
-          ],
-          solucion: { a: 'z1', b: 'z2', e: 'z3', c: 'z4', d: 'z5' }
+          bins: [ { id: 'z1', texto: '1' }, { id: 'z2', texto: '2' }, { id: 'z3', texto: '3' }, { id: 'z4', texto: '4' }, { id: 'z5', texto: '5' } ],
+          chips: [ { id: 'e', texto: 'Porciones' }, { id: 'a', texto: 'Título' }, { id: 'd', texto: 'Preparación' }, { id: 'b', texto: 'Ingredientes' }, { id: 'c', texto: 'Utensilios' } ],
+          solucion: { a: 'z1', e: 'z2', b: 'z3', c: 'z4', d: 'z5' }
         },
         {
           id: 'M1D2', tipo: 'opcion', puntos: 1,
-          consigna: '¿Para qué se escribió esta nota de enciclopedia?',
-          contenidos: ['ENC'], espacio: 'Prácticas del Lenguaje', comprension: '',
-          habilidad: 'Reconoce la finalidad informativa de la nota de enciclopedia.',
-          criterio: 'Correcta: informar cómo es y cómo vive el cardón.',
+          consigna: '¿Para qué sirve un texto instructivo como esta receta?',
+          contenidos: ['INS'], espacio: 'Prácticas del Lenguaje', comprension: '',
+          habilidad: 'Reconoce la finalidad del texto instructivo.',
+          criterio: 'Correcta: para explicar paso a paso cómo hacer algo.',
           opciones: [
-            { id: 'a', texto: 'Para contar una aventura inventada de un cactus.' },
-            { id: 'b', texto: 'Para informar cómo es y cómo vive el cardón.' },
-            { id: 'c', texto: 'Para explicar con magia por qué existen los cactus.' },
-            { id: 'd', texto: 'Para dar instrucciones de cómo plantar un cactus.' }
-          ],
-          solucion: 'b'
-        },
-        {
-          id: 'M1D3', tipo: 'completar', puntos: 2,
-          consigna: 'Completá las oraciones con la información de la nota.',
-          ayuda: 'En cada espacio, tocá la palabra que corresponde. Podés tocar 📖 para releer.',
-          contenidos: ['ENC', 'LIT', 'CN'], espacio: 'Integrado', comprension: 'Literal',
-          habilidad: 'Recupera información explícita de un texto informativo.',
-          criterio: 'Un acierto por espacio (3). Puntaje proporcional.',
-          oraciones: [
-            { antes: 'El cardón guarda agua en su', opciones: ['flor', 'tallo', 'espina'], despues: '.' },
-            { antes: 'Sus espinas son', opciones: ['raíces', 'ramas', 'hojas'], despues: 'transformadas.' },
-            { antes: 'Vive en cerros', opciones: ['secos', 'helados', 'húmedos'], despues: 'y soleados.' }
-          ],
-          solucion: ['tallo', 'hojas', 'secos']
-        },
-        {
-          id: 'M1D4', tipo: 'opcion', puntos: 1,
-          consigna: 'En los cerros del norte llueve muy poco. Si el cardón tuviera hojas grandes y finitas en lugar de espinas, ¿qué le pasaría?',
-          contenidos: ['INF', 'CN'], espacio: 'Integrado', comprension: 'Inferencial',
-          habilidad: 'Infiere la función de una adaptación a partir de pistas del texto.',
-          criterio: 'Correcta: perdería más agua y le costaría sobrevivir.',
-          opciones: [
-            { id: 'a', texto: 'Crecería más rápido porque tendría más sombra.' },
-            { id: 'b', texto: 'No le pasaría nada, porque las hojas no pierden agua.' },
-            { id: 'c', texto: 'Perdería más agua y le costaría sobrevivir.' },
-            { id: 'd', texto: 'Ningún animal podría acercarse a él.' }
+            { id: 'a', texto: 'Para contar una historia inventada sobre frutas.' },
+            { id: 'b', texto: 'Para explicar el origen de las frutas.' },
+            { id: 'c', texto: 'Para explicar paso a paso cómo hacer algo.' },
+            { id: 'd', texto: 'Para expresar una emoción.' }
           ],
           solucion: 'c'
         },
         {
-          id: 'M1D5', tipo: 'asignar', vista: 'unir', puntos: 2,
-          consigna: 'Uní cada parte del cardón con la manera en que lo ayuda a vivir.',
-          ayuda: 'Tocá una tarjeta de la derecha y después el espacio vacío al lado de la parte del cardón.',
-          contenidos: ['ENC', 'CN'], espacio: 'Ciencias Naturales', comprension: 'Literal',
-          habilidad: 'Relaciona estructuras de una planta con su adaptación al ambiente seco.',
-          criterio: 'Un acierto por par (4). Puntaje proporcional.',
-          bins: [
-            { id: 'p1', texto: '🌵 Tallo grueso' }, { id: 'p2', texto: '📍 Espinas' }, { id: 'p3', texto: '🟫 Raíces cerca de la superficie' }, { id: 'p4', texto: '🌼 Flores con néctar' }
-          ],
+          id: 'M1D3', tipo: 'ordenar', puntos: 2,
+          consigna: 'Alguien mezcló los pasos de otra receta: «Ensalada de frutas». Ordenalos del 1 al 4.',
+          ayuda: 'Pensá qué hay que hacer primero y qué después. Tocá una tarjeta y después el lugar con el número.',
+          contenidos: ['INS', 'INF'], espacio: 'Prácticas del Lenguaje', comprension: 'Inferencial',
+          habilidad: 'Ordena los pasos de un texto instructivo según una secuencia lógica.',
+          criterio: 'Un acierto por tarjeta en su lugar (4). Puntaje proporcional.',
+          rotulos: ['1', '2', '3', '4'],
           chips: [
-            { id: 'r', texto: 'Absorben rápido el agua de la lluvia.' },
-            { id: 'q', texto: 'Atraen animales que llevan el polen.' },
-            { id: 't', texto: 'Guarda agua para los días sin lluvia.' },
-            { id: 's', texto: 'Pierde poca agua y lo protegen de los animales.' }
+            { id: 'c', texto: 'Cortar las frutas en cubitos.' },
+            { id: 'a', texto: 'Lavarse las manos.' },
+            { id: 'd', texto: 'Mezclar todo en un bol y servir.' },
+            { id: 'b', texto: 'Lavar y pelar las frutas.' }
           ],
-          solucion: { t: 'p1', s: 'p2', r: 'p3', q: 'p4' }
+          solucion: ['a', 'b', 'c', 'd']
+        },
+        {
+          id: 'M1D4', tipo: 'multiple', vista: 'escena', puntos: 2,
+          consigna: 'En la mesa del picnic, tocá TODOS los alimentos que aportan PROTEÍNAS, las que nos ayudan a crecer y a reparar el cuerpo.',
+          ayuda: 'Tocá cada alimento en la mesa. Si te equivocás, tocalo otra vez para desmarcarlo.',
+          contenidos: ['NUT'], espacio: 'Ciencias Naturales', comprension: '',
+          habilidad: 'Identifica alimentos fuente de proteínas.',
+          criterio: '4 alimentos con proteínas (huevo, pescado, pollo, leche). Puntaje = (correctos − incorrectos) / 4, mínimo 0.',
+          fondo: 'mesa',
+          opciones: [
+            { id: 'a', texto: 'pan', dibujo: '🍞', x: 6, y: 18 },
+            { id: 'b', texto: 'huevo', dibujo: '🥚', x: 22, y: 56 },
+            { id: 'c', texto: 'manzana', dibujo: '🍎', x: 36, y: 14 },
+            { id: 'd', texto: 'pescado', dibujo: '🐟', x: 50, y: 52 },
+            { id: 'e', texto: 'palta', dibujo: '🥑', x: 64, y: 14 },
+            { id: 'f', texto: 'pollo', dibujo: '🍗', x: 76, y: 54 },
+            { id: 'g', texto: 'vaso de leche', dibujo: '🥛', x: 88, y: 14 },
+            { id: 'h', texto: 'arroz', dibujo: '🍚', x: 6, y: 58 }
+          ],
+          solucion: ['b', 'd', 'f', 'g']
+        },
+        {
+          id: 'M1D5', tipo: 'asignar', vista: 'clasificar', puntos: 3,
+          consigna: 'Ordená la despensa: llevá cada alimento al frasco del nutriente que aporta principalmente.',
+          ayuda: 'Proteínas: carnes, huevo, legumbres, leche. Hidratos de carbono: pan, arroz, fideos. Grasas: aceite, palta, frutos secos. Vitaminas y minerales: frutas y verduras.',
+          contenidos: ['NUT'], espacio: 'Ciencias Naturales', comprension: '',
+          habilidad: 'Clasifica alimentos según el nutriente que aportan principalmente.',
+          criterio: 'Un acierto por alimento (8). Puntaje proporcional.',
+          bins: [ { id: 'PR', texto: 'Proteínas' }, { id: 'HC', texto: 'Hidratos de carbono' }, { id: 'GR', texto: 'Grasas' }, { id: 'VM', texto: 'Vitaminas y minerales' } ],
+          chips: [
+            { id: 'a', texto: '🍝 fideos' }, { id: 'b', texto: '🫒 aceite' }, { id: 'c', texto: '🍊 naranja' }, { id: 'd', texto: '🥚 huevo' },
+            { id: 'e', texto: '🍞 pan' }, { id: 'f', texto: '🥕 zanahoria' }, { id: 'g', texto: '🥜 maní' }, { id: 'h', texto: '🍲 lentejas' }
+          ],
+          solucion: { d: 'PR', h: 'PR', a: 'HC', e: 'HC', b: 'GR', g: 'GR', c: 'VM', f: 'VM' }
+        },
+        {
+          id: 'M1D6', tipo: 'opcion', puntos: 1,
+          consigna: 'Un chico va a correr una carrera en el recreo. Según lo que leíste, ¿qué nutrientes le dan principalmente la energía que necesita?',
+          contenidos: ['NUT', 'INF'], espacio: 'Integrado', comprension: 'Inferencial',
+          habilidad: 'Relaciona los hidratos de carbono con el aporte de energía.',
+          criterio: 'Correcta: los hidratos de carbono, como los de la avena, el pan o los fideos.',
+          opciones: [
+            { id: 'a', texto: 'Los hidratos de carbono, como los de la avena, el pan o los fideos.' },
+            { id: 'b', texto: 'El agua con gas.' },
+            { id: 'c', texto: 'Las golosinas, porque son dulces.' },
+            { id: 'd', texto: 'Ningún alimento da energía.' }
+          ],
+          solucion: 'a'
         }
       ],
       cierre: {
-        tipo: 'codigo', palabra: 'SAVIA',
-        texto: 'Cada desafío encendió una letra escondida. Escribí la palabra secreta para abrir el archivo.',
-        dato: 'La savia es el líquido que circula por dentro de las plantas y lleva agua y alimento a todas sus partes.'
+        tipo: 'codigo', palabra: 'PLATO',
+        texto: 'Cada desafío encendió una letra. Escribí la palabra secreta para abrir el recetario.',
+        dato: 'Un plato saludable tiene muchas frutas y verduras, y también cereales o legumbres, una porción de proteínas y agua para tomar.'
       }
     },
 
     /* =========================== MISIÓN 2 =========================== */
     {
       id: 'M2',
-      nombre: 'La leyenda del árbol luminoso',
-      eje: 'Leyenda y comprensión lectora',
-      lugar: 'El claro del Árbol Luminoso',
+      nombre: 'La leyenda del monte',
+      eje: 'Leyenda y tipos de oraciones',
+      lugar: 'El claro del Viejo Quebracho',
       escena: 'claro',
       personaje: { nombre: 'Abuela Tortuga', quien: 'la que guarda las historias del bosque', emoji: '🐢' },
-      objeto: { emoji: '🍃', nombre: 'Hoja Luminosa' },
+      objeto: { emoji: '📜', nombre: 'Pergamino de la Leyenda' },
       intro: [
-        'Abuela Tortuga: El Árbol Luminoso se apagó y nadie recuerda su historia. Yo la guardo en mi caparazón… pero la niebla borró algunas partes.',
-        'Lumi: ¡Es la leyenda de cómo nacieron las luciérnagas, como yo! Leela y ayudanos a reconstruirla.'
+        'Abuela Tortuga: En el picnic, el oso hormiguero no probó la hamburguesa. ¿Saben por qué? Hay una leyenda que lo explica.',
+        'Lumi: ¡Una leyenda! Leela con atención y fijate en cómo hablan los personajes: preguntan, piden, cuentan y se emocionan.'
       ],
       lectura: {
         tipo: 'libro',
-        titulo: 'La leyenda del árbol luminoso',
+        titulo: 'La lengua del oso hormiguero',
         paginas: [
-          { ilustracion: 'noche', parrafos: ['Hace muchísimo tiempo, cuando el bosque todavía no tenía nombre, las noches eran tan oscuras que los animales pequeños se perdían al volver a sus nidos.', 'En el centro del bosque vivía el Abuelo Algarrobo, un árbol viejo y sabio que escuchaba los lamentos de todos.'] },
-          { ilustracion: 'subida', parrafos: ['Una noche, un escarabajo pequeño llamado Tiluz dijo: —Yo voy a buscar luz para todos.', 'Trepó por el tronco del Abuelo Algarrobo hasta la rama más alta, para hablar con la Luna. El viento soplaba fuerte y la subida era larga, pero Tiluz no se rindió.'] },
-          { ilustracion: 'luna', parrafos: ['La Luna, emocionada por su valentía, le regaló una chispa de plata. —Guardala en tu pancita y compartila con quien la necesite —le dijo.', 'Desde entonces, Tiluz y sus hijos iluminan las noches de verano. Así nacieron las luciérnagas, y por eso todavía hoy brillan entre los árboles.'] }
+          { ilustracion: 'hormiguero1', parrafos: ['Hace mucho tiempo, cuando los animales del monte recién aprendían a buscar su comida, el oso hormiguero no tenía dientes.', 'Los demás animales masticaban frutos, semillas y raíces, pero él solo podía mirar. —¿Qué voy a comer yo? —se preguntaba triste.'] },
+          { ilustracion: 'hormiguero2', parrafos: ['Una noche fue a ver al Viejo Quebracho, el árbol más sabio del monte. —¡Ayudame, por favor! Tengo hambre y no puedo masticar —le pidió.', 'El árbol movió sus ramas y le contestó: —Mañana, cuando salga el sol, buscá el hormiguero más grande. Allí vas a encontrar tu comida.'] },
+          { ilustracion: 'hormiguero3', parrafos: ['Al amanecer, el oso hormiguero encontró un montículo de tierra lleno de hormigas. Estiró el hocico, sacó la lengua… ¡y la lengua siguió creciendo! Se hizo larga, finita y pegajosa, y las hormigas quedaron pegadas en ella. —¡Qué rico! —exclamó feliz.', 'Desde entonces, los osos hormigueros tienen una lengua larguísima y comen hormigas y termitas sin necesidad de dientes. Y cada vez que pasan cerca de un quebracho, mueven la cola para darle las gracias.'] }
         ]
       },
       desafios: [
@@ -220,532 +237,567 @@ var BANCO = {
           ayuda: 'Puede haber más de una correcta. Tocá las tarjetas que elegís y después "Comprobar".',
           contenidos: ['LEY'], espacio: 'Prácticas del Lenguaje', comprension: '',
           habilidad: 'Reconoce las características de la leyenda.',
-          criterio: '3 características correctas. Puntaje = (correctas marcadas − incorrectas marcadas) / 3, mínimo 0.',
+          criterio: '3 características correctas. Puntaje = (correctas − incorrectas) / 3, mínimo 0.',
           opciones: [
             { id: 'a', texto: 'Explica de forma imaginaria el origen de algo de la naturaleza.' },
-            { id: 'b', texto: 'Tiene título, subtítulos y fuente, como una enciclopedia.' },
-            { id: 'c', texto: 'Ocurre hace mucho tiempo, en un lugar de la naturaleza.' },
+            { id: 'b', texto: 'Tiene ingredientes y pasos para seguir.' },
+            { id: 'c', texto: 'Ocurre hace mucho tiempo, en un lugar de la naturaleza (el monte).' },
             { id: 'd', texto: 'Da información comprobada por científicos.' },
-            { id: 'e', texto: 'Tiene elementos fantásticos, como una Luna que habla.' },
-            { id: 'f', texto: 'Tiene instrucciones para hacer algo paso a paso.' }
+            { id: 'e', texto: 'Tiene elementos fantásticos, como un árbol que habla.' },
+            { id: 'f', texto: 'Empieza con "Había una vez" y ocurre en un castillo.' }
           ],
           solucion: ['a', 'c', 'e']
         },
         {
-          id: 'M2D2', tipo: 'asignar', vista: 'clasificar', puntos: 2,
-          consigna: '¿Lo cuenta la LEYENDA o lo explica la CIENCIA? Llevá cada tarjeta al cofre que corresponde.',
-          ayuda: 'La leyenda inventa una explicación. La ciencia da información comprobada.',
-          contenidos: ['LEY', 'CN'], espacio: 'Integrado', comprension: 'Inferencial',
-          habilidad: 'Diferencia explicaciones fantásticas de información científica.',
-          criterio: 'Un acierto por tarjeta (6). Puntaje proporcional.',
-          bins: [ { id: 'L', texto: '✨ Lo cuenta la leyenda' }, { id: 'C', texto: '🔬 Lo explica la ciencia' } ],
+          id: 'M2D2', tipo: 'asignar', vista: 'clasificar', puntos: 3,
+          consigna: 'Clasificá las oraciones de la leyenda según su tipo.',
+          ayuda: 'Enunciativa: cuenta o informa. Interrogativa: pregunta (¿?). Exclamativa: expresa una emoción (¡!). Imperativa: da una orden, un pedido o un consejo.',
+          contenidos: ['ORA', 'LEY'], espacio: 'Prácticas del Lenguaje', comprension: '',
+          habilidad: 'Identifica oraciones enunciativas, interrogativas, exclamativas e imperativas.',
+          criterio: 'Un acierto por oración (8). Puntaje proporcional.',
+          bins: [ { id: 'EN', texto: 'Enunciativa' }, { id: 'IN', texto: 'Interrogativa' }, { id: 'EX', texto: 'Exclamativa' }, { id: 'IM', texto: 'Imperativa' } ],
           chips: [
-            { id: 'a', texto: 'Las luciérnagas son un tipo de escarabajo.' },
-            { id: 'b', texto: 'La Luna le regaló una chispa de plata a Tiluz.' },
-            { id: 'c', texto: 'Las luciérnagas usan su luz para comunicarse entre ellas.' },
-            { id: 'd', texto: 'Un árbol sabio escuchaba los lamentos de los animales.' },
-            { id: 'e', texto: 'La luz se produce dentro de su cuerpo, en la parte de atrás.' },
-            { id: 'f', texto: 'Tiluz guardó la luz en su pancita para compartirla.' }
+            { id: 'a', texto: 'El oso hormiguero no tenía dientes.' },
+            { id: 'b', texto: '¿Qué voy a comer yo?' },
+            { id: 'c', texto: '¡Qué rico!' },
+            { id: 'd', texto: 'Buscá el hormiguero más grande.' },
+            { id: 'e', texto: '¿Dónde está el hormiguero?' },
+            { id: 'f', texto: 'No te pongas triste.' },
+            { id: 'g', texto: '¡Qué lengua tan larga!' },
+            { id: 'h', texto: 'Las hormigas quedaron pegadas en la lengua.' }
           ],
-          solucion: { a: 'C', b: 'L', c: 'C', d: 'L', e: 'C', f: 'L' }
+          solucion: { a: 'EN', h: 'EN', b: 'IN', e: 'IN', c: 'EX', g: 'EX', d: 'IM', f: 'IM' }
         },
         {
-          id: 'M2D3', tipo: 'multiple', vista: 'escena', puntos: 2,
-          consigna: 'Buscá en la ilustración a los TRES personajes de la leyenda y tocalos.',
-          ayuda: 'Tocá cada personaje en el dibujo. Si te equivocás, tocalo otra vez para desmarcarlo.',
-          contenidos: ['LEY', 'LIT'], espacio: 'Prácticas del Lenguaje', comprension: 'Literal',
-          habilidad: 'Identifica a los personajes de una narración.',
-          criterio: '3 personajes. Puntaje = (correctos − incorrectos) / 3, mínimo 0.',
-          opciones: [
-            { id: 'a', texto: 'el zorro' }, { id: 'b', texto: 'la Luna' }, { id: 'c', texto: 'el búho' },
-            { id: 'd', texto: 'el Abuelo Algarrobo' }, { id: 'e', texto: 'el sol' }, { id: 'f', texto: 'el escarabajo Tiluz' }
+          id: 'M2D3', tipo: 'completar', puntos: 2,
+          consigna: 'Elegí la oración que corresponde a cada situación.',
+          ayuda: 'Pensá qué quiere hacer el personaje: ¿preguntar, dar un consejo o expresar una emoción?',
+          contenidos: ['ORA'], espacio: 'Prácticas del Lenguaje', comprension: 'Inferencial',
+          habilidad: 'Selecciona el tipo de oración adecuado según la intención comunicativa.',
+          criterio: 'Un acierto por situación (3). Puntaje proporcional.',
+          oraciones: [
+            { antes: 'El oso hormiguero quiere SABER dónde hay hormigas. Dice:', opciones: ['¿Dónde hay hormigas?', '¡Qué hormigas!', 'Hay hormigas.'], despues: '' },
+            { antes: 'El quebracho le da un CONSEJO. Dice:', opciones: ['¿Buscaste el hormiguero?', 'Buscá el hormiguero más grande.', '¡Qué hormiguero!'], despues: '' },
+            { antes: 'El oso hormiguero está MUY CONTENTO. Dice:', opciones: ['Comí hormigas.', '¿Comí hormigas?', '¡Qué feliz estoy!'], despues: '' }
           ],
-          solucion: ['b', 'd', 'f']
+          solucion: ['¿Dónde hay hormigas?', 'Buscá el hormiguero más grande.', '¡Qué feliz estoy!']
         },
         {
           id: 'M2D4', tipo: 'ordenar', puntos: 2,
-          consigna: 'La niebla mezcló las partes de la leyenda. Ordenalas del 1 al 4.',
+          consigna: 'Ordená los hechos de la leyenda del 1 al 4.',
           ayuda: 'Tocá una tarjeta y después el lugar con el número. También podés arrastrarla.',
-          contenidos: ['LEY', 'LIT', 'EST'], espacio: 'Prácticas del Lenguaje', comprension: 'Literal',
+          contenidos: ['LEY', 'LIT'], espacio: 'Prácticas del Lenguaje', comprension: 'Literal',
           habilidad: 'Ordena los acontecimientos principales de una narración.',
           criterio: 'Un acierto por tarjeta en su lugar (4). Puntaje proporcional.',
           rotulos: ['1', '2', '3', '4'],
           chips: [
-            { id: 'c', texto: 'La Luna le regaló una chispa de plata.' },
-            { id: 'a', texto: 'Las noches eran muy oscuras y los animales se perdían.' },
-            { id: 'd', texto: 'Desde entonces, las luciérnagas iluminan las noches.' },
-            { id: 'b', texto: 'Tiluz trepó hasta la rama más alta para hablar con la Luna.' }
+            { id: 'c', texto: 'Encontró un hormiguero y su lengua creció.' },
+            { id: 'a', texto: 'El oso hormiguero no tenía dientes y no podía masticar.' },
+            { id: 'd', texto: 'Desde entonces, los osos hormigueros comen hormigas.' },
+            { id: 'b', texto: 'Le pidió ayuda al Viejo Quebracho.' }
           ],
           solucion: ['a', 'b', 'c', 'd']
         },
         {
           id: 'M2D5', tipo: 'opcion', puntos: 1,
-          consigna: 'Pista: "El viento soplaba fuerte, pero Tiluz no se rindió" y él quiso buscar luz "para todos". ¿Cómo es Tiluz?',
+          consigna: '¿Por qué los osos hormigueros mueven la cola cuando pasan cerca de un quebracho?',
           contenidos: ['LEY', 'INF'], espacio: 'Prácticas del Lenguaje', comprension: 'Inferencial',
-          habilidad: 'Infiere características de un personaje a partir de sus acciones.',
-          criterio: 'Correcta: valiente y generoso.',
+          habilidad: 'Infiere la intención de una acción de los personajes.',
+          criterio: 'Correcta: para agradecerle al quebracho la ayuda que le dio.',
           opciones: [
-            { id: 'a', texto: 'Miedoso y distraído.' },
-            { id: 'b', texto: 'Egoísta y perezoso.' },
-            { id: 'c', texto: 'Valiente y generoso.' },
-            { id: 'd', texto: 'Gruñón y mentiroso.' }
+            { id: 'a', texto: 'Porque tienen frío.' },
+            { id: 'b', texto: 'Para agradecerle al quebracho la ayuda que le dio.' },
+            { id: 'c', texto: 'Para espantar a las hormigas.' },
+            { id: 'd', texto: 'Porque quieren trepar al árbol.' }
           ],
-          solucion: 'c'
+          solucion: 'b'
         },
         {
           id: 'M2D6', tipo: 'abierta', puntos: 2, minCaracteres: 25,
-          consigna: '¿Te parece que Tiluz hizo bien en arriesgarse para ayudar a los demás? ¿Por qué? Usá algo que pasó en la leyenda para explicar lo que pensás.',
+          consigna: 'El oso hormiguero le pidió ayuda al Viejo Quebracho. ¿Te parece importante pedir ayuda cuando algo nos cuesta? ¿Por qué? Usá algo que pasó en la leyenda para explicar lo que pensás.',
           ayuda: 'No hay una única respuesta correcta. Contá qué pensás y explicá por qué, con algo de la historia.',
           contenidos: ['OPI', 'LEY'], espacio: 'Prácticas del Lenguaje', comprension: 'Opinión',
           habilidad: 'Formula una opinión personal y la justifica con información del texto.',
-          criterio: '2 = postura clara y justificación relacionada con hechos de la leyenda (la oscuridad, la subida, el viento, el regalo de la Luna, la luz compartida). 1 = postura con justificación general o poco relacionada con el texto. 0 = sin postura, sin justificación o respuesta ajena al texto. Se acepta cualquier postura bien justificada.'
+          criterio: '2 = postura clara y justificación relacionada con hechos de la leyenda (no podía masticar, tenía hambre, el quebracho le aconsejó, encontró su comida). 1 = postura con justificación general o poco relacionada con el texto. 0 = sin postura, sin justificación o respuesta ajena al texto. Se acepta cualquier postura bien justificada.'
         }
       ],
       cierre: {
-        tipo: 'encender',
-        texto: '¡Reconstruiste la leyenda! Tocá el Árbol Luminoso para devolverle su luz.',
-        dato: 'Dato científico: la luz de las luciérnagas se llama bioluminiscencia. La producen dentro de su cuerpo y casi no da calor.'
+        tipo: 'tocar', lugar: 'claro',
+        texto: '¡Recuperaste la leyenda! Tocá el Viejo Quebracho para que vuelva a brillar.',
+        dato: 'Dato científico: el oso hormiguero gigante vive en el norte de la Argentina. No tiene dientes: atrapa hormigas y termitas con su lengua larga y pegajosa.'
       }
     },
 
     /* =========================== MISIÓN 3 =========================== */
     {
       id: 'M3',
-      nombre: 'El castillo de las semillas mágicas',
-      eje: 'Cuento maravilloso y estructura narrativa',
-      lugar: 'El castillo de las semillas',
-      escena: 'castillo',
-      personaje: { nombre: 'Hada Rocío', quien: 'el hada jardinera del castillo', emoji: '🧚' },
-      objeto: { emoji: '🌰', nombre: 'Semilla Mágica' },
+      nombre: 'El viaje del alimento',
+      eje: 'Sistema digestivo y verbos',
+      lugar: 'El túnel del viaje',
+      escena: 'tunel',
+      personaje: { nombre: 'Doctora Jirafa', quien: 'la médica del bosque', emoji: '🦒' },
+      objeto: { emoji: '🗺️', nombre: 'Mapa del Viaje del Alimento' },
       intro: [
-        'Hada Rocío: ¡Bienvenidos al castillo! En nuestra biblioteca hay un cuento maravilloso sobre una semilla extraordinaria.',
-        'Lumi: Si lo entendemos bien, el hada nos va a regalar una semilla mágica para el portal. ¡A leer!'
+        'Doctora Jirafa: ¡Bienvenidos al túnel del viaje! Acá descubrimos qué le pasa a la comida después de que la tragamos.',
+        'Lumi: Si la hamburguesa hizo este viaje, tal vez no desapareció… ¡Leamos la pista!'
       ],
       lectura: {
-        tipo: 'libro',
-        titulo: 'La semilla dorada',
-        paginas: [
-          { ilustracion: 'regalo', parrafos: ['Había una vez, en un reino rodeado de bosques, una niña llamada Clara que cuidaba el jardín del castillo.', 'Un día, un hada diminuta se posó en su mano y le regaló una semilla dorada. —Es mágica: crecerá si la cuidás con paciencia —le dijo.'] },
-          { ilustracion: 'robo', parrafos: ['Pero esa misma noche, un duende travieso entró al jardín, robó la semilla y la escondió en lo alto de una torre encantada.', 'La puerta de la torre solo se abría si alguien adivinaba una adivinanza. Clara se puso muy triste, pero decidió ir a buscarla.'] },
-          { ilustracion: 'puerta', parrafos: ['Clara subió cien escalones. Entonces la puerta habló: —Tengo raíces que no se ven, crezco hacia la luz y doy sombra también. ¿Quién soy?', 'Clara pensó un ratito y respondió: —¡Un árbol! La puerta se abrió y allí estaba la semilla dorada.'] },
-          { ilustracion: 'arbol', parrafos: ['Clara plantó la semilla junto a la ventana más soleada del castillo. Cada mañana, el arbolito se inclinaba hacia la ventana, buscando el sol.', 'Al poco tiempo creció un árbol de hojas doradas que daba frutos para todo el reino. Y el duende, arrepentido, ayudó a regarlo.'] }
-        ]
+        tipo: 'nota', figura: 'digestivo',
+        titulo: 'El viaje del alimento',
+        parrafos: [
+          'Cuando comemos, el alimento hace un largo viaje por el **sistema digestivo**. En la **boca**, los dientes lo cortan y lo trituran, y la saliva lo humedece. Al tragar, pasa por la **faringe** y baja por el **esófago**, un tubo que lo lleva hasta el **estómago**. Allí se mezcla con los jugos gástricos y se convierte en una pasta.',
+          'Después llega al **intestino delgado**, que es muy largo. Con ayuda del hígado y del páncreas, el alimento se termina de deshacer y los **nutrientes** pasan a la sangre, que los lleva a todo el cuerpo. Lo que no se aprovecha sigue al **intestino grueso**, donde se absorbe el agua, y los restos salen del cuerpo por el **ano**.'
+        ],
+        epigrafe: 'El sistema digestivo.',
+        fuente: 'Fuente: Libreta de la Doctora Jirafa.'
       },
       desafios: [
         {
-          id: 'M3D1', tipo: 'multiple', puntos: 2,
-          consigna: 'Marcá TODOS los elementos mágicos o fantásticos del cuento.',
-          ayuda: 'Pensá: ¿esto podría pasar en la vida real? Si no, es mágico. Puede haber más de una correcta.',
-          contenidos: ['CUE'], espacio: 'Prácticas del Lenguaje', comprension: 'Literal',
-          habilidad: 'Identifica elementos maravillosos en un cuento.',
-          criterio: '4 elementos mágicos. Puntaje = (correctos − incorrectos) / 4, mínimo 0.',
-          opciones: [
-            { id: 'a', texto: 'Un hada diminuta que regala una semilla.' },
-            { id: 'b', texto: 'Clara cuida el jardín del castillo.' },
-            { id: 'c', texto: 'Una puerta que habla y dice una adivinanza.' },
-            { id: 'd', texto: 'Una torre con muchos escalones.' },
-            { id: 'e', texto: 'Un duende travieso.' },
-            { id: 'f', texto: 'Un arbolito que se inclina hacia el sol.' },
-            { id: 'g', texto: 'Un árbol de hojas doradas.' }
+          id: 'M3D1', tipo: 'ordenar', puntos: 3,
+          consigna: 'Armá el recorrido de la hamburguesa por el sistema digestivo: ordená los órganos del 1 al 6.',
+          ayuda: 'Empezá por donde entra el alimento. Tocá una tarjeta y después el lugar con el número.',
+          contenidos: ['SIS', 'LIT'], espacio: 'Ciencias Naturales', comprension: 'Literal',
+          habilidad: 'Ordena el recorrido del alimento por los órganos del sistema digestivo.',
+          criterio: 'Un acierto por órgano en su lugar (6). Puntaje proporcional.',
+          rotulos: ['1', '2', '3', '4', '5', '6'],
+          chips: [
+            { id: 'd', texto: 'Intestino delgado' }, { id: 'a', texto: 'Boca' }, { id: 'f', texto: 'Ano' },
+            { id: 'c', texto: 'Estómago' }, { id: 'e', texto: 'Intestino grueso' }, { id: 'b', texto: 'Esófago' }
           ],
-          solucion: ['a', 'c', 'e', 'g']
+          solucion: ['a', 'b', 'c', 'd', 'e', 'f']
         },
         {
-          id: 'M3D2', tipo: 'opcion', puntos: 1,
-          consigna: '¿Cuál es el problema (conflicto) del cuento?',
-          contenidos: ['CUE', 'EST'], espacio: 'Prácticas del Lenguaje', comprension: 'Literal',
-          habilidad: 'Reconoce el conflicto principal de una narración.',
-          criterio: 'Correcta: el duende roba la semilla y la esconde en la torre.',
+          id: 'M3D2', tipo: 'asignar', vista: 'unir', puntos: 2,
+          consigna: 'Uní cada órgano con lo que hace.',
+          ayuda: 'Tocá una tarjeta de la derecha y después el espacio vacío al lado del órgano.',
+          contenidos: ['SIS', 'LIT'], espacio: 'Ciencias Naturales', comprension: 'Literal',
+          habilidad: 'Relaciona órganos del sistema digestivo con su función.',
+          criterio: 'Un acierto por par (4). Puntaje proporcional.',
+          bins: [ { id: 'p1', texto: '👄 Boca' }, { id: 'p2', texto: '🟠 Estómago' }, { id: 'p3', texto: '〰️ Intestino delgado' }, { id: 'p4', texto: '🌀 Intestino grueso' } ],
+          chips: [
+            { id: 'r', texto: 'Los nutrientes pasan a la sangre.' },
+            { id: 'q', texto: 'Mezcla el alimento con jugos gástricos.' },
+            { id: 't', texto: 'Absorbe el agua de los restos.' },
+            { id: 's', texto: 'Los dientes trituran y la saliva humedece.' }
+          ],
+          solucion: { s: 'p1', q: 'p2', r: 'p3', t: 'p4' }
+        },
+        {
+          id: 'M3D3', tipo: 'opcion', puntos: 1,
+          consigna: 'Ahora pensá en el misterio: ¿por qué podemos decir que la hamburguesa «no desapareció, sino que se transformó»?',
+          contenidos: ['SIS', 'NUT', 'INF'], espacio: 'Ciencias Naturales', comprension: 'Inferencial',
+          habilidad: 'Comprende que la digestión transforma los alimentos en nutrientes que el cuerpo aprovecha.',
+          criterio: 'Correcta: porque el cuerpo la deshizo y aprovechó sus nutrientes.',
           opciones: [
-            { id: 'a', texto: 'Clara no sabe regar el jardín.' },
-            { id: 'b', texto: 'Un duende travieso roba la semilla y la esconde en una torre.' },
-            { id: 'c', texto: 'El hada se pierde en el bosque.' },
-            { id: 'd', texto: 'El árbol da demasiados frutos.' }
+            { id: 'a', texto: 'Porque se quedó guardada entera en el estómago.' },
+            { id: 'b', texto: 'Porque el cuerpo la deshizo y aprovechó sus nutrientes.' },
+            { id: 'c', texto: 'Porque se convirtió en una piedra.' },
+            { id: 'd', texto: 'Porque salió por la nariz.' }
           ],
           solucion: 'b'
         },
         {
-          id: 'M3D3', tipo: 'ordenar', puntos: 3,
-          consigna: 'Armá el camino del cuento: ordená las tarjetas en el inicio, el desarrollo y el final.',
-          ayuda: 'Tocá una tarjeta y después un lugar vacío del camino. También podés arrastrarla.',
-          contenidos: ['EST', 'CUE'], espacio: 'Prácticas del Lenguaje', comprension: 'Literal',
-          habilidad: 'Ordena la secuencia narrativa y reconoce inicio, desarrollo y final.',
-          criterio: 'Un acierto por tarjeta en su lugar (5). Puntaje proporcional.',
-          rotulos: ['1 · Inicio', '2 · Desarrollo', '3 · Desarrollo', '4 · Desarrollo', '5 · Final'],
+          id: 'M3D4', tipo: 'asignar', vista: 'clasificar', puntos: 2,
+          consigna: 'Estos verbos están en infinitivo. Llevá cada uno al frasco de su terminación: -AR, -ER o -IR.',
+          ayuda: 'Mirá cómo termina cada verbo: masticAR, comER, digerIR.',
+          contenidos: ['VER'], espacio: 'Prácticas del Lenguaje', comprension: '',
+          habilidad: 'Clasifica verbos en infinitivo según su terminación (-ar, -er, -ir).',
+          criterio: 'Un acierto por verbo (8). Puntaje proporcional.',
+          bins: [ { id: 'AR', texto: '-AR' }, { id: 'ER', texto: '-ER' }, { id: 'IR', texto: '-IR' } ],
           chips: [
-            { id: 'd', texto: '🚪 Clara adivina la adivinanza y la puerta se abre.', },
-            { id: 'b', texto: '🧝 Un duende roba la semilla y la esconde.' },
-            { id: 'e', texto: '🌳 Nace un árbol dorado con frutos para todo el reino.' },
-            { id: 'a', texto: '🧚 Un hada le regala a Clara una semilla dorada.' },
-            { id: 'c', texto: '🪜 Clara sube los cien escalones de la torre.' }
+            { id: 'a', texto: 'masticar' }, { id: 'b', texto: 'comer' }, { id: 'c', texto: 'digerir' }, { id: 'd', texto: 'tragar' },
+            { id: 'e', texto: 'beber' }, { id: 'f', texto: 'salir' }, { id: 'g', texto: 'mezclar' }, { id: 'h', texto: 'absorber' }
           ],
-          solucion: ['a', 'b', 'c', 'd', 'e']
-        },
-        {
-          id: 'M3D4', tipo: 'opcion', puntos: 1,
-          consigna: '¿Cómo se resuelve el problema del cuento?',
-          contenidos: ['CUE', 'EST'], espacio: 'Prácticas del Lenguaje', comprension: 'Literal',
-          habilidad: 'Identifica cómo se resuelve el conflicto.',
-          criterio: 'Correcta: Clara adivina la adivinanza y recupera la semilla.',
-          opciones: [
-            { id: 'a', texto: 'El hada vuelve y castiga al duende.' },
-            { id: 'b', texto: 'Clara compra otra semilla en el mercado.' },
-            { id: 'c', texto: 'El duende devuelve la semilla porque se aburre.' },
-            { id: 'd', texto: 'Clara adivina la adivinanza y recupera la semilla.' }
-          ],
-          solucion: 'd'
+          solucion: { a: 'AR', d: 'AR', g: 'AR', b: 'ER', e: 'ER', h: 'ER', c: 'IR', f: 'IR' }
         },
         {
           id: 'M3D5', tipo: 'asignar', vista: 'clasificar', puntos: 2,
-          consigna: '¿Es del CUENTO MARAVILLOSO o de la LEYENDA? Llevá cada tarjeta a su libro.',
-          ayuda: 'Acordate: "La semilla dorada" es un cuento maravilloso y "El árbol luminoso" es una leyenda.',
-          contenidos: ['CUE', 'LEY'], espacio: 'Prácticas del Lenguaje', comprension: '',
-          habilidad: 'Diferencia el cuento maravilloso de la leyenda.',
-          criterio: 'Un acierto por tarjeta (4). Puntaje proporcional.',
-          bins: [ { id: 'C', texto: '🏰 Cuento maravilloso' }, { id: 'L', texto: '🌙 Leyenda' } ],
+          consigna: '¿El verbo de cada oración está en INFINITIVO o CONJUGADO?',
+          ayuda: 'Infinitivo: el verbo "sin conjugar", termina en -ar, -er o -ir (masticar). Conjugado: dice quién hace la acción y cuándo (masticó, mastican).',
+          contenidos: ['VER'], espacio: 'Prácticas del Lenguaje', comprension: '',
+          habilidad: 'Distingue verbos en infinitivo y verbos conjugados.',
+          criterio: 'Un acierto por oración (6). Puntaje proporcional.',
+          bins: [ { id: 'INF', texto: 'Infinitivo' }, { id: 'CON', texto: 'Conjugado' } ],
           chips: [
-            { id: 'a', texto: 'Explica de forma imaginaria por qué pasa algo en la naturaleza.' },
-            { id: 'b', texto: 'Empieza con "Había una vez".' },
-            { id: 'c', texto: 'Cuenta cómo nacieron las luciérnagas.' },
-            { id: 'd', texto: 'Ocurre en un reino con castillo, hadas y duendes.' }
+            { id: 'a', texto: 'Masticar bien la comida.' },
+            { id: 'b', texto: 'Lumi tragó el agua despacio.' },
+            { id: 'c', texto: 'Mezclar los ingredientes.' },
+            { id: 'd', texto: 'El estómago mezcla los alimentos.' },
+            { id: 'e', texto: 'Beber agua todos los días.' },
+            { id: 'f', texto: 'Los chicos bebieron jugo de naranja.' }
           ],
-          solucion: { a: 'L', b: 'C', c: 'L', d: 'C' }
+          solucion: { a: 'INF', c: 'INF', e: 'INF', b: 'CON', d: 'CON', f: 'CON' }
         },
         {
-          id: 'M3D6', tipo: 'opcion', puntos: 1,
-          consigna: 'En el cuento, "el arbolito se inclinaba hacia la ventana, buscando el sol". En la vida real, ¿puede pasar esto?',
-          contenidos: ['CN', 'INF'], espacio: 'Ciencias Naturales', comprension: 'Inferencial',
-          habilidad: 'Reconoce la respuesta de las plantas al estímulo de la luz.',
-          criterio: 'Correcta: sí, las plantas crecen hacia la luz porque la necesitan para fabricar su alimento.',
-          opciones: [
-            { id: 'a', texto: 'No, solo puede pasar por arte de magia.' },
-            { id: 'b', texto: 'Sí, porque las plantas quieren mirar por la ventana.' },
-            { id: 'c', texto: 'Sí, las plantas crecen hacia la luz porque la necesitan para fabricar su alimento.' },
-            { id: 'd', texto: 'No, las plantas siempre crecen hacia abajo.' }
+          id: 'M3D6', tipo: 'asignar', vista: 'reloj', puntos: 2,
+          consigna: 'Llevá cada oración al reloj: ¿la acción ocurrió en el PASADO, ocurre en el PRESENTE u ocurrirá en el FUTURO?',
+          ayuda: 'Pasado: ya ocurrió (ayer). Presente: ocurre ahora. Futuro: ocurrirá (mañana).',
+          contenidos: ['VER'], espacio: 'Prácticas del Lenguaje', comprension: '',
+          habilidad: 'Reconoce los tiempos verbales pasado, presente y futuro.',
+          criterio: 'Un acierto por oración (6). Puntaje proporcional.',
+          bins: [ { id: 'PA', texto: '⏪ Pasado' }, { id: 'PR', texto: '⏺️ Presente' }, { id: 'FU', texto: '⏩ Futuro' } ],
+          chips: [
+            { id: 'a', texto: 'Ayer Don Ramiro comió una hamburguesa.' },
+            { id: 'b', texto: 'Mañana desayunaré frutas con yogur.' },
+            { id: 'c', texto: 'Ahora el estómago mezcla el almuerzo.' },
+            { id: 'd', texto: 'El sábado cocinaremos una ensalada.' },
+            { id: 'e', texto: 'Anoche bebimos mucha agua.' },
+            { id: 'f', texto: 'Hoy el intestino absorbe los nutrientes.' }
           ],
-          solucion: 'c'
+          solucion: { a: 'PA', e: 'PA', c: 'PR', f: 'PR', b: 'FU', d: 'FU' }
         }
       ],
       cierre: {
-        tipo: 'brotar',
-        texto: '¡El hada te regala la Semilla Mágica! Tocala varias veces para ayudarla a brotar.',
-        dato: 'Las plantas reciben la luz del sol con sus hojas y la usan para fabricar su propio alimento.'
+        tipo: 'tocar', lugar: 'tunel',
+        texto: '¡Completaste el viaje! Tocá el túnel para iluminar el recorrido del alimento.',
+        dato: 'El intestino delgado de una persona adulta mide varios metros: ¡está todo enrollado dentro de la panza!'
       }
     },
 
     /* =========================== MISIÓN 4 =========================== */
     {
       id: 'M4',
-      nombre: 'El laboratorio de las palabras',
-      eje: 'Clases de palabras y concordancia',
-      lugar: 'El laboratorio de la hormiga Tina',
+      nombre: 'La fábrica del aire',
+      eje: 'Sistema respiratorio, sustantivos y adjetivos',
+      lugar: 'La fábrica de Tina',
       escena: 'laboratorio',
       personaje: { nombre: 'Tina', quien: 'la hormiga inventora', emoji: '🐜' },
-      objeto: { emoji: '⚙️', nombre: 'Engranaje de las Palabras' },
+      objeto: { emoji: '💨', nombre: 'Soplo de Aire Puro' },
       intro: [
-        'Tina: ¡Mi máquina Clasificadora de Palabras se trabó! La niebla mezcló sustantivos, adjetivos y verbos.',
-        'Lumi: Si la reparamos, Tina nos va a dar su engranaje de oro. ¡Manos a la obra!'
+        'Tina: ¡Hola! En mi fábrica estudiamos el aire. Sin aire, la comida no alcanza para darnos energía.',
+        'Lumi: ¿Cómo? ¿La energía necesita aire y alimentos? ¡Leamos la pista de Tina!'
       ],
-      lectura: null,
+      lectura: {
+        tipo: 'nota', figura: 'respiratorio',
+        titulo: 'La fábrica del aire',
+        parrafos: [
+          'El aire entra por la **nariz**, que lo calienta, lo humedece y lo limpia. Después pasa por la **faringe** y la **laringe**, donde están las cuerdas vocales que nos permiten hablar. Luego baja por la **tráquea**, que se divide en dos **bronquios**, uno para cada **pulmón**.',
+          'Dentro de los pulmones hay millones de bolsitas llamadas **alvéolos**. Allí el oxígeno del aire pasa a la sangre, y el dióxido de carbono sale de la sangre para que lo eliminemos al exhalar.',
+          'La sangre lleva el oxígeno y los nutrientes de los alimentos a todas las partes del cuerpo. Con los dos juntos, el cuerpo obtiene la **energía** que necesita para jugar, aprender y crecer.'
+        ],
+        epigrafe: 'El sistema respiratorio.',
+        fuente: 'Fuente: Cuaderno de inventos de Tina.'
+      },
       desafios: [
         {
-          id: 'M4D1', tipo: 'asignar', vista: 'clasificar', puntos: 3,
-          consigna: 'Cargá la máquina: llevá cada palabra al compartimento que corresponde.',
-          ayuda: 'Sustantivo común: nombra cualquier cosa (nido). Sustantivo propio: un nombre particular, con mayúscula (Lumi). Adjetivo: dice cómo es. Verbo: una acción.',
-          contenidos: ['CLA'], espacio: 'Prácticas del Lenguaje', comprension: '',
-          habilidad: 'Clasifica sustantivos comunes y propios, adjetivos y verbos.',
-          criterio: 'Un acierto por palabra (12). Puntaje proporcional.',
-          bins: [
-            { id: 'SC', texto: 'Sustantivos comunes' }, { id: 'SP', texto: 'Sustantivos propios' }, { id: 'AD', texto: 'Adjetivos' }, { id: 'VB', texto: 'Verbos' }
-          ],
+          id: 'M4D1', tipo: 'colorear', puntos: 2,
+          consigna: 'Como en tu cuaderno: pintá de ROJO los órganos de la DIGESTIÓN y de VERDE los de la RESPIRACIÓN.',
+          ayuda: 'Primero tocá un lápiz y después las palabras. Para borrar, tocá la goma.',
+          contenidos: ['SIS'], espacio: 'Ciencias Naturales', comprension: '',
+          habilidad: 'Distingue órganos del sistema digestivo y del sistema respiratorio.',
+          criterio: '8 órganos a pintar. Puntaje = (bien pintados − pintados de más) / 8, mínimo 0.',
+          categorias: [ { id: 'D', texto: 'Digestión', color: 'rojo' }, { id: 'R', texto: 'Respiración', color: 'verde' } ],
+          texto: 'estómago pulmones esófago tráquea nariz intestino bronquios hígado',
+          solucion: { 0: 'D', 1: 'R', 2: 'D', 3: 'R', 4: 'R', 5: 'D', 6: 'R', 7: 'D' }
+        },
+        {
+          id: 'M4D2', tipo: 'ordenar', puntos: 2,
+          consigna: 'Ordená el camino que hace el aire cuando respiramos.',
+          ayuda: 'Empezá por donde entra el aire. Tocá una tarjeta y después el lugar con el número.',
+          contenidos: ['SIS', 'LIT'], espacio: 'Ciencias Naturales', comprension: 'Literal',
+          habilidad: 'Ordena el recorrido del aire por el sistema respiratorio.',
+          criterio: 'Un acierto por órgano en su lugar (5). Puntaje proporcional.',
+          rotulos: ['1', '2', '3', '4', '5'],
           chips: [
-            { id: 'a', texto: 'colibrí' }, { id: 'b', texto: 'florece' }, { id: 'c', texto: 'Paraná' }, { id: 'd', texto: 'verde' },
-            { id: 'e', texto: 'nido' }, { id: 'f', texto: 'Lumi' }, { id: 'g', texto: 'corre' }, { id: 'h', texto: 'pequeña' },
-            { id: 'i', texto: 'Misiones' }, { id: 'j', texto: 'raíz' }, { id: 'k', texto: 'brillante' }, { id: 'l', texto: 'vuela' }
+            { id: 'c', texto: 'Tráquea' }, { id: 'e', texto: 'Pulmones (alvéolos)' }, { id: 'a', texto: 'Nariz' },
+            { id: 'd', texto: 'Bronquios' }, { id: 'b', texto: 'Faringe y laringe' }
           ],
-          solucion: { a: 'SC', e: 'SC', j: 'SC', c: 'SP', f: 'SP', i: 'SP', d: 'AD', h: 'AD', k: 'AD', b: 'VB', g: 'VB', l: 'VB' }
+          solucion: ['a', 'b', 'c', 'd', 'e']
         },
         {
-          id: 'M4D2', tipo: 'marcar', puntos: 2,
-          consigna: 'Tocá todos los SUSTANTIVOS PROPIOS de esta oración.',
-          ayuda: 'Los sustantivos propios son nombres particulares de personas, animales o lugares.',
-          contenidos: ['CLA'], espacio: 'Prácticas del Lenguaje', comprension: '',
-          habilidad: 'Identifica sustantivos propios dentro de una oración.',
-          criterio: '4 sustantivos propios. Puntaje = (correctos − incorrectos) / 4, mínimo 0.',
-          texto: 'Lumi y el búho Ramiro volaron sobre el río Uruguay hasta la selva de Misiones.',
-          solucion: [0, 4, 9, 14]
+          id: 'M4D3', tipo: 'opcion', puntos: 1,
+          consigna: 'Según la nota, ¿qué pasa en los alvéolos?',
+          contenidos: ['SIS', 'LIT'], espacio: 'Ciencias Naturales', comprension: 'Literal',
+          habilidad: 'Recupera información explícita sobre el intercambio de gases.',
+          criterio: 'Correcta: el oxígeno pasa a la sangre y sale el dióxido de carbono.',
+          opciones: [
+            { id: 'a', texto: 'Se mastican los alimentos.' },
+            { id: 'b', texto: 'El oxígeno pasa a la sangre y sale el dióxido de carbono.' },
+            { id: 'c', texto: 'Se fabrican las cuerdas vocales.' },
+            { id: 'd', texto: 'Se guarda la comida para después.' }
+          ],
+          solucion: 'b'
         },
         {
-          id: 'M4D3', tipo: 'marcar', puntos: 2,
-          consigna: 'Tocá todos los VERBOS (las acciones) de este texto.',
-          ayuda: 'Preguntate: ¿qué hace el picaflor? Las palabras que responden son verbos.',
-          contenidos: ['CLA', 'CN'], espacio: 'Integrado', comprension: '',
-          habilidad: 'Identifica verbos dentro de un texto y reconoce su función (nombrar acciones).',
-          criterio: '3 verbos. Puntaje = (correctos − incorrectos) / 3, mínimo 0.',
-          texto: 'El picaflor busca flores. Con su pico largo toma el néctar y lleva el polen a otra flor.',
-          solucion: [2, 8, 12]
+          id: 'M4D4', tipo: 'opcion', puntos: 1,
+          consigna: 'Para que nuestro cuerpo obtenga energía, ¿qué tiene que llevar la sangre a todas sus partes?',
+          contenidos: ['SIS', 'NUT', 'INF'], espacio: 'Ciencias Naturales', comprension: 'Inferencial',
+          habilidad: 'Relaciona la nutrición y la respiración con la obtención de energía.',
+          criterio: 'Correcta: el oxígeno del aire y los nutrientes de los alimentos.',
+          opciones: [
+            { id: 'a', texto: 'Solo el agua que tomamos.' },
+            { id: 'b', texto: 'Solo los alimentos enteros, sin digerir.' },
+            { id: 'c', texto: 'El oxígeno del aire y los nutrientes de los alimentos.' },
+            { id: 'd', texto: 'El dióxido de carbono que exhalamos.' }
+          ],
+          solucion: 'c'
         },
         {
-          id: 'M4D4', tipo: 'completar', puntos: 2,
-          consigna: 'Completá cada oración con la palabra que corresponde.',
-          ayuda: 'Fijate qué clase de palabra pide cada espacio y que la oración tenga sentido.',
-          contenidos: ['CLA', 'CN'], espacio: 'Integrado', comprension: '',
-          habilidad: 'Selecciona la clase de palabra adecuada para completar oraciones.',
-          criterio: 'Un acierto por espacio (3). Puntaje proporcional.',
+          id: 'M4D5', tipo: 'completar', puntos: 2,
+          consigna: 'Elegí el artículo que corresponde a cada sustantivo (masculino o femenino, uno o varios).',
+          ayuda: 'El / La para uno solo. Los / Las para varios.',
+          contenidos: ['SUS'], espacio: 'Prácticas del Lenguaje', comprension: '',
+          habilidad: 'Concuerda el artículo con el género y el número del sustantivo.',
+          criterio: 'Un acierto por espacio (4). Puntaje proporcional.',
           oraciones: [
-            { antes: 'La lechuza tiene ojos', opciones: ['grandes', 'vuela', 'Tucumán'], despues: 'para ver de noche. (adjetivo)' },
-            { antes: 'Las abejas', opciones: ['dulces', 'fabrican', 'colmena'], despues: 'miel en la colmena. (verbo)' },
-            { antes: 'El', opciones: ['suave', 'duerme', 'zorro'], despues: 'descansa en su cueva. (sustantivo común)' }
+            { antes: '', opciones: ['El', 'La', 'Los', 'Las'], despues: 'pulmones' },
+            { antes: '', opciones: ['El', 'La', 'Los', 'Las'], despues: 'tráquea' },
+            { antes: '', opciones: ['El', 'La', 'Los', 'Las'], despues: 'alimentos' },
+            { antes: '', opciones: ['El', 'La', 'Los', 'Las'], despues: 'bolsitas de aire' }
           ],
-          solucion: ['grandes', 'fabrican', 'zorro']
+          solucion: ['Los', 'La', 'Los', 'Las']
         },
         {
-          id: 'M4D5', tipo: 'completar', puntos: 3,
-          consigna: 'Elegí el adjetivo que concuerda con el sustantivo (masculino o femenino, uno o varios).',
+          id: 'M4D6', tipo: 'completar', puntos: 2,
+          consigna: 'Corregí los carteles de la fábrica: elegí el adjetivo que concuerda con el sustantivo.',
           ayuda: 'Mirá la palabra subrayada: ¿es femenina o masculina? ¿Es una o son varias?',
-          contenidos: ['CON'], espacio: 'Prácticas del Lenguaje', comprension: '',
+          contenidos: ['SUS'], espacio: 'Prácticas del Lenguaje', comprension: '',
           habilidad: 'Reconoce la concordancia de género y número entre sustantivo y adjetivo.',
           criterio: 'Un acierto por espacio (4). Puntaje proporcional.',
           oraciones: [
-            { antes: 'Las _hojas_', opciones: ['seco', 'seca', 'secos', 'secas'], despues: 'caen del árbol.' },
-            { antes: 'Los _murciélagos_ son animales', opciones: ['nocturno', 'nocturna', 'nocturnos', 'nocturnas'], despues: '.' },
-            { antes: 'La _flor_', opciones: ['blanco', 'blanca', 'blancos', 'blancas'], despues: 'del cardón es grande.' },
-            { antes: 'El _tallo_ del cactus es', opciones: ['grueso', 'gruesa', 'gruesos', 'gruesas'], despues: '.' }
+            { antes: 'Los _pulmones_', opciones: ['sano', 'sana', 'sanos', 'sanas'], despues: 'respiran aire puro.' },
+            { antes: 'La _sangre_', opciones: ['rojo', 'roja', 'rojos', 'rojas'], despues: 'lleva oxígeno.' },
+            { antes: 'Las _bolsitas_', opciones: ['pequeño', 'pequeña', 'pequeños', 'pequeñas'], despues: 'se llaman alvéolos.' },
+            { antes: 'El _aire_', opciones: ['fresco', 'fresca', 'frescos', 'frescas'], despues: 'entra por la nariz.' }
           ],
-          solucion: ['secas', 'nocturnos', 'blanca', 'grueso']
-        },
-        {
-          id: 'M4D6', tipo: 'opcion', puntos: 1,
-          consigna: 'La máquina imprimió cuatro carteles. ¿Cuál está bien escrito?',
-          contenidos: ['CON'], espacio: 'Prácticas del Lenguaje', comprension: '',
-          habilidad: 'Detecta errores de concordancia en una oración.',
-          criterio: 'Correcta: Los colibríes pequeños vuelan rápido.',
-          opciones: [
-            { id: 'a', texto: 'Los colibrí pequeños vuelan rápido.' },
-            { id: 'b', texto: 'El colibríes pequeño vuela rápido.' },
-            { id: 'c', texto: 'Los colibríes pequeños vuelan rápido.' },
-            { id: 'd', texto: 'Los colibríes pequeña vuelan rápido.' }
-          ],
-          solucion: 'c'
+          solucion: ['sanos', 'roja', 'pequeñas', 'fresco']
         }
       ],
       cierre: {
-        tipo: 'maquina',
-        texto: '¡La Clasificadora funciona! Tocá la palanca para encenderla y recibir el engranaje.',
-        dato: 'Los picaflores, mientras toman néctar, llevan polen de una flor a otra: así ayudan a las plantas a formar semillas.'
+        tipo: 'tocar', lugar: 'laboratorio',
+        texto: '¡La fábrica funciona! Tocala para encenderla y recibir el Soplo de Aire Puro.',
+        dato: 'Respiramos miles de veces por día, ¡y casi nunca nos damos cuenta!'
       }
     },
 
     /* =========================== MISIÓN 5 =========================== */
     {
       id: 'M5',
-      nombre: 'El reloj del tiempo y los mensajes secretos',
-      eje: 'Tiempos verbales y tipos de oraciones',
-      lugar: 'La torre del reloj',
-      escena: 'reloj',
-      personaje: { nombre: 'Doña Ramona', quien: 'la lechuza que cuida el reloj', emoji: '🦉' },
-      objeto: { emoji: '🕰️', nombre: 'Aguja del Tiempo' },
+      nombre: 'Detectives saludables',
+      eje: 'Narración, hábitos saludables y cuidado del agua',
+      lugar: 'La oficina de los detectives',
+      escena: 'archivo',
+      personaje: { nombre: 'Inspectora Mapache', quien: 'la detective del bosque', emoji: '🦝' },
+      objeto: { emoji: '🧼', nombre: 'Jabón Detective' },
       intro: [
-        'Doña Ramona: ¡Buenas noches! Las lechuzas despertamos cuando oscurece. Pero el reloj del bosque se detuvo y ya no sabemos qué pasó ayer, qué pasa hoy y qué pasará mañana.',
-        'Lumi: Además, la niebla dejó mensajes secretos. ¡Reparemos el reloj y descifremos los mensajes!'
+        'Inspectora Mapache: En mi oficina guardo casos sobre la salud. Este es el caso de Teo, un chico que un día se sintió mal después del recreo.',
+        'Lumi: Para cuidar la energía, también hay que cuidar el cuerpo. ¡Leamos el caso!'
       ],
-      lectura: null,
+      lectura: {
+        tipo: 'libro',
+        titulo: 'El recreo de Teo',
+        paginas: [
+          { ilustracion: 'recreo1', parrafos: ['Teo estaba feliz: era el primer día de sol después de una semana de lluvia.', 'Cuando sonó el timbre del recreo, salió corriendo al patio con su pelota.'] },
+          { ilustracion: 'recreo2', parrafos: ['Jugó a la pelota, se tiró en el pasto y hasta levantó un bichito bolita con las manos. Después se secó las manos en el pantalón, se frotó los ojos y se comió un alfajor sin lavarse las manos.', 'A la noche le picaban los ojos y le dolía la panza.'] },
+          { ilustracion: 'recreo3', parrafos: ['Al día siguiente, la doctora le explicó: —Las manos pueden llevar gérmenes aunque no se vean sucias. Hay que lavarlas con agua y jabón antes de comer y después de jugar.', 'Desde ese día, Teo juega igual de feliz… ¡pero antes de la merienda se lava las manos!'] }
+        ]
+      },
       desafios: [
         {
-          id: 'M5D1', tipo: 'asignar', vista: 'reloj', puntos: 2,
-          consigna: 'Arreglá el reloj: llevá cada oración a PASADO, PRESENTE o FUTURO según cuándo ocurre la acción.',
-          ayuda: 'Pasado: ya ocurrió (ayer). Presente: ocurre ahora. Futuro: ocurrirá (mañana).',
-          contenidos: ['TIE', 'CN'], espacio: 'Integrado', comprension: '',
-          habilidad: 'Reconoce acciones en pasado, presente y futuro.',
-          criterio: 'Un acierto por oración (6). Puntaje proporcional.',
-          bins: [ { id: 'PA', texto: '⏪ Pasado' }, { id: 'PR', texto: '⏺️ Presente' }, { id: 'FU', texto: '⏩ Futuro' } ],
+          id: 'M5D1', tipo: 'asignar', vista: 'clasificar', puntos: 2,
+          consigna: '¿En qué parte del cuento ocurre cada hecho? Llevalo al INICIO, al DESARROLLO o al FINAL.',
+          ayuda: 'Inicio: presenta al personaje y el lugar. Desarrollo: aparece el problema. Final: cómo se resuelve.',
+          contenidos: ['NAR', 'LIT'], espacio: 'Prácticas del Lenguaje', comprension: 'Literal',
+          habilidad: 'Reconoce el inicio, el desarrollo y el final de una narración.',
+          criterio: 'Un acierto por hecho (6). Puntaje proporcional.',
+          bins: [ { id: 'I', texto: 'Inicio' }, { id: 'D', texto: 'Desarrollo' }, { id: 'F', texto: 'Final' } ],
           chips: [
-            { id: 'a', texto: 'Anoche la lechuza cazó un ratón.' },
-            { id: 'b', texto: 'Mañana las abejas visitarán las flores.' },
-            { id: 'c', texto: 'Ahora el murciélago duerme cabeza abajo.' },
-            { id: 'd', texto: 'Con la lluvia, las semillas germinarán.' },
-            { id: 'e', texto: 'El año pasado los horneros armaron su nido.' },
-            { id: 'f', texto: 'Hoy el sapo atrapa insectos con su lengua.' }
+            { id: 'a', texto: 'Era el primer día de sol después de una semana de lluvia.' },
+            { id: 'b', texto: 'Se frotó los ojos y comió sin lavarse las manos.' },
+            { id: 'c', texto: 'La doctora le explicó por qué lavarse las manos.' },
+            { id: 'd', texto: 'Teo salió corriendo al patio con su pelota.' },
+            { id: 'e', texto: 'A la noche le dolía la panza.' },
+            { id: 'f', texto: 'Ahora Teo se lava las manos antes de la merienda.' }
           ],
-          solucion: { a: 'PA', e: 'PA', c: 'PR', f: 'PR', b: 'FU', d: 'FU' }
+          solucion: { a: 'I', d: 'I', b: 'D', e: 'D', c: 'F', f: 'F' }
         },
         {
-          id: 'M5D2', tipo: 'completar', puntos: 2,
-          consigna: 'Elegí la forma del verbo que corresponde a cada momento.',
-          ayuda: 'Las palabras "ayer", "ahora" y "mañana" son pistas del tiempo.',
-          contenidos: ['TIE'], espacio: 'Prácticas del Lenguaje', comprension: '',
-          habilidad: 'Selecciona formas verbales apropiadas según el tiempo.',
-          criterio: 'Un acierto por espacio (3). Puntaje proporcional.',
-          oraciones: [
-            { antes: 'Ayer el zorro', opciones: ['busca', 'buscó', 'buscará'], despues: 'comida en el bosque.' },
-            { antes: 'Ahora la tortuga', opciones: ['camina', 'caminó', 'caminará'], despues: 'despacio hacia el río.' },
-            { antes: 'Mañana la planta', opciones: ['abrió', 'abre', 'abrirá'], despues: 'sus flores.' }
+          id: 'M5D2', tipo: 'opcion', puntos: 1,
+          consigna: '¿Cuál es el problema (conflicto) de la historia?',
+          contenidos: ['NAR', 'HAB', 'INF'], espacio: 'Integrado', comprension: 'Inferencial',
+          habilidad: 'Identifica el conflicto de una narración y su relación con los hábitos de higiene.',
+          criterio: 'Correcta: Teo se sintió mal por no lavarse las manos después de jugar.',
+          opciones: [
+            { id: 'a', texto: 'Teo perdió su pelota en el patio.' },
+            { id: 'b', texto: 'Llovió toda la semana.' },
+            { id: 'c', texto: 'Teo se sintió mal por no lavarse las manos después de jugar.' },
+            { id: 'd', texto: 'El alfajor estaba vencido.' }
           ],
-          solucion: ['buscó', 'camina', 'abrirá']
+          solucion: 'c'
         },
         {
-          id: 'M5D3', tipo: 'asignar', vista: 'clasificar', puntos: 3,
-          consigna: 'Descifrá los mensajes secretos: ¿qué tipo de oración es cada uno?',
-          ayuda: 'Enunciativa: cuenta o informa. Interrogativa: pregunta (¿?). Exclamativa: expresa una emoción (¡!). Imperativa: da una orden o un pedido.',
-          contenidos: ['ORA', 'CN'], espacio: 'Integrado', comprension: '',
-          habilidad: 'Identifica oraciones enunciativas, interrogativas, exclamativas e imperativas.',
-          criterio: 'Un acierto por mensaje (8). Puntaje proporcional.',
-          bins: [ { id: 'EN', texto: 'Enunciativa' }, { id: 'IN', texto: 'Interrogativa' }, { id: 'EX', texto: 'Exclamativa' }, { id: 'IM', texto: 'Imperativa' } ],
+          id: 'M5D3', tipo: 'multiple', puntos: 2,
+          consigna: 'Marcá TODOS los hábitos que nos ayudan a prevenir enfermedades.',
+          ayuda: 'Puede haber varias correctas. Pensá: ¿esto cuida mi cuerpo?',
+          contenidos: ['HAB'], espacio: 'Ciencias Naturales', comprension: '',
+          habilidad: 'Reconoce hábitos de higiene que previenen enfermedades.',
+          criterio: '4 hábitos saludables. Puntaje = (correctos − incorrectos) / 4, mínimo 0.',
+          opciones: [
+            { id: 'a', texto: 'Lavarse las manos con agua y jabón antes de comer.' },
+            { id: 'b', texto: 'Frotarse los ojos con las manos sucias.' },
+            { id: 'c', texto: 'Cepillarse los dientes después de comer.' },
+            { id: 'd', texto: 'Meter objetos en los oídos para limpiarlos.' },
+            { id: 'e', texto: 'Bañarse y cambiarse la ropa interior todos los días.' },
+            { id: 'f', texto: 'Secarse las manos en la ropa.' },
+            { id: 'g', texto: 'Cortar y limpiar las uñas.' }
+          ],
+          solucion: ['a', 'c', 'e', 'g']
+        },
+        {
+          id: 'M5D4', tipo: 'asignar', vista: 'clasificar', puntos: 2,
+          consigna: 'El agua es un nutriente muy importante y hay que cuidarla. ¿Cada acción la cuida o la desperdicia?',
+          ayuda: 'Pulgar para arriba si cuida el agua. Pulgar para abajo si la desperdicia.',
+          contenidos: ['HAB'], espacio: 'Ciencias Naturales', comprension: '',
+          habilidad: 'Reconoce acciones que cuidan o desperdician el agua.',
+          criterio: 'Un acierto por acción (6). Puntaje proporcional.',
+          bins: [ { id: 'SI', texto: '👍 Cuida el agua' }, { id: 'NO', texto: '👎 La desperdicia' } ],
           chips: [
-            { id: 'a', texto: 'Los murciélagos duermen de día.' },
-            { id: 'b', texto: '¿Por qué brillan las luciérnagas?' },
-            { id: 'c', texto: '¡Qué hermoso es el bosque de noche!' },
-            { id: 'd', texto: 'Cuidá las plantas del bosque.' },
-            { id: 'e', texto: '¿Dónde viven los pumas?' },
-            { id: 'f', texto: 'No arranques las flores.' },
-            { id: 'g', texto: '¡Cuánto vuela el cóndor!' },
-            { id: 'h', texto: 'El cactus guarda agua en su tallo.' }
+            { id: 'a', texto: 'Cerrar la canilla mientras me cepillo los dientes.' },
+            { id: 'b', texto: 'Lavar el auto con la manguera abierta.' },
+            { id: 'c', texto: 'Bañarme en poco tiempo.' },
+            { id: 'd', texto: 'Jugar con el agua de la canilla.' },
+            { id: 'e', texto: 'Avisar si una canilla pierde agua.' },
+            { id: 'f', texto: 'Lavar los platos con la canilla abierta todo el tiempo.' }
           ],
-          solucion: { a: 'EN', h: 'EN', b: 'IN', e: 'IN', c: 'EX', g: 'EX', d: 'IM', f: 'IM' }
+          solucion: { a: 'SI', c: 'SI', e: 'SI', b: 'NO', d: 'NO', f: 'NO' }
         },
         {
-          id: 'M5D4', tipo: 'asignar', vista: 'unir', puntos: 2,
-          consigna: '¿Para qué escribió la niebla cada mensaje? Uní cada mensaje con su intención.',
-          ayuda: 'Pensá qué quiere lograr quien escribe: ¿preguntar, ordenar, informar o mostrar una emoción?',
-          contenidos: ['ORA'], espacio: 'Prácticas del Lenguaje', comprension: 'Inferencial',
-          habilidad: 'Reconoce la intención comunicativa de distintos mensajes.',
-          criterio: 'Un acierto por par (4). Puntaje proporcional.',
-          bins: [
-            { id: 'm1', texto: '“Regá el arbolito todas las mañanas.”' },
-            { id: 'm2', texto: '“¿Quién apagó la luz del árbol?”' },
-            { id: 'm3', texto: '“¡Qué alegría, volvió la luz!”' },
-            { id: 'm4', texto: '“La lechuza caza de noche.”' }
+          id: 'M5D5', tipo: 'opcion', puntos: 1,
+          consigna: 'La Inspectora Mapache encontró esta etiqueta en la mochila de Teo. ¿Hasta qué fecha se pueden comer estas galletitas?',
+          contenidos: ['NUT', 'LIT'], espacio: 'Integrado', comprension: 'Literal',
+          habilidad: 'Localiza la fecha de vencimiento en la etiqueta de un alimento.',
+          criterio: 'Correcta: hasta el 15/04/2027 (fecha de vencimiento).',
+          tarjeta: { titulo: 'Galletitas de avena', filas: [['Peso neto', '200 g'], ['Elaborado', '15/10/2026'], ['Vencimiento', '15/04/2027'], ['Sodio', '95 mg por porción'], ['Porción', '3 galletitas (30 g)']] },
+          opciones: [
+            { id: 'a', texto: 'Hasta el 15/10/2026.' },
+            { id: 'b', texto: 'Hasta el 15/04/2027.' },
+            { id: 'c', texto: 'Se pueden comer siempre.' },
+            { id: 'd', texto: 'Hasta que se terminen los 200 g.' }
           ],
-          chips: [
-            { id: 'x', texto: 'Mostrar una emoción.' },
-            { id: 'w', texto: 'Hacer una pregunta.' },
-            { id: 'z', texto: 'Informar algo.' },
-            { id: 'y', texto: 'Dar una orden o un consejo.' }
-          ],
-          solucion: { y: 'm1', w: 'm2', x: 'm3', z: 'm4' }
+          solucion: 'b'
         },
         {
-          id: 'M5D5', tipo: 'escritura', puntos: 1, minCaracteres: 10,
-          consigna: 'Escribí una oración INTERROGATIVA para preguntarle algo a Doña Ramona sobre su vida en el bosque.',
-          ayuda: 'Una oración interrogativa pregunta algo. Acordate de abrir con ¿ y cerrar con ? y de empezar con mayúscula.',
-          contenidos: ['ORA'], espacio: 'Prácticas del Lenguaje', comprension: '',
-          habilidad: 'Produce una oración interrogativa con la puntuación correspondiente.',
-          criterio: 'Automático: 1 punto si empieza con ¿, termina con ? y tiene al menos 3 palabras. La respuesta queda registrada para que la docente revise mayúscula y sentido.',
-          solucion: { empieza: '¿', termina: '?', minPalabras: 3 }
+          id: 'M5D6', tipo: 'opcion', puntos: 1,
+          consigna: '¿Por qué tenemos que tomar agua todos los días, sobre todo cuando hace calor o hacemos actividad física?',
+          contenidos: ['NUT', 'HAB', 'INF'], espacio: 'Ciencias Naturales', comprension: 'Inferencial',
+          habilidad: 'Comprende la importancia del agua como nutriente.',
+          criterio: 'Correcta: porque el cuerpo pierde agua (por ejemplo, al transpirar) y necesita reponerla.',
+          opciones: [
+            { id: 'a', texto: 'Porque el agua tiene mucho azúcar.' },
+            { id: 'b', texto: 'Porque el cuerpo pierde agua, por ejemplo al transpirar, y necesita reponerla.' },
+            { id: 'c', texto: 'Porque el agua reemplaza a todos los alimentos.' },
+            { id: 'd', texto: 'No hace falta tomar agua si comemos frutas.' }
+          ],
+          solucion: 'b'
         }
       ],
       cierre: {
-        tipo: 'reloj',
-        texto: '¡El reloj volvió a andar! Tocá el reloj para ponerlo en hora y recibir la Aguja del Tiempo.',
-        dato: 'Las lechuzas son animales nocturnos: sus ojos grandes y su oído muy fino las ayudan a cazar en la oscuridad.'
+        tipo: 'brotar', etapas: ['🦠', '🧼', '💦', '✨'],
+        texto: '¡Caso resuelto! Ayudá a Teo a lavarse las manos: tocá varias veces el jabón.',
+        dato: 'Lavarse las manos con agua y jabón durante unos 20 segundos elimina muchos gérmenes.'
       }
     },
 
     /* =========================== MISIÓN 6 =========================== */
     {
       id: 'M6',
-      nombre: 'El gran portal de la naturaleza',
-      eje: 'Integración final',
-      lugar: 'El Gran Portal',
+      nombre: 'El Laboratorio de la Energía',
+      eje: 'Integración final: seres vivos y energía',
+      lugar: 'El Laboratorio de la Energía',
       escena: 'portal',
       personaje: { nombre: 'Lumi', quien: 'tu guía', emoji: '✨' },
-      objeto: { emoji: '🌈', nombre: 'Luz del Portal' },
+      objeto: { emoji: '⚡', nombre: 'Energía' },
       intro: [
-        'Lumi: ¡Llegamos al Gran Portal! Sobre la piedra hay una nota escrita por los guardianes del bosque.',
-        'Lumi: Para abrirlo, tenemos que usar todo lo que aprendimos de las palabras y de los seres vivos.'
+        'Lumi: ¡Llegamos al Laboratorio de la Energía! En la puerta hay una nota sobre los seres vivos.',
+        'Lumi: Para abrir el laboratorio y resolver el misterio, tenemos que usar todo lo que aprendimos.'
       ],
       lectura: {
-        tipo: 'nota',
-        titulo: 'Socios del bosque',
+        tipo: 'nota', figura: 'vivos',
+        titulo: '¿Cómo sabemos si algo está vivo?',
         parrafos: [
-          'Las abejas visitan las flores para alimentarse de su néctar. Mientras lo hacen, el polen se pega a los pelitos de su cuerpo y viaja de una flor a otra. Este viaje se llama **polinización**. Gracias a él, muchas plantas pueden formar frutos y semillas.',
-          'Las flores también responden a la luz. Algunas se cierran cuando oscurece y se vuelven a abrir con el sol de la mañana. Otras, en cambio, se abren de noche y las visitan polillas y murciélagos.'
+          'Los **seres vivos** nacen, se alimentan, respiran, crecen, se reproducen y mueren. Las personas, los animales y las plantas son seres vivos. Las plantas también están vivas, aunque no caminen: fabrican su propio alimento con la luz del sol, el agua y el aire.',
+          'Los **objetos inertes**, como una piedra, una pelota o un auto, no nacen, no se alimentan ni crecen. Algunos se mueven, como un auto, pero eso no los convierte en seres vivos.',
+          'Todos los seres vivos necesitamos alimento y energía para vivir.'
         ],
-        epigrafe: 'Una abeja con polen en las patas.',
-        fuente: 'Fuente: Cuaderno de los Guardianes del Bosque.'
+        epigrafe: 'Seres vivos y objetos inertes.',
+        fuente: 'Fuente: Cartel del Laboratorio de la Energía.'
       },
       desafios: [
         {
-          id: 'M6D1', tipo: 'opcion', puntos: 1,
-          consigna: 'Según la nota, ¿qué es la polinización?',
-          contenidos: ['LIT', 'CN', 'ENC'], espacio: 'Integrado', comprension: 'Literal',
-          habilidad: 'Recupera información explícita de una nota informativa.',
-          criterio: 'Correcta: el viaje del polen de una flor a otra.',
-          opciones: [
-            { id: 'a', texto: 'Cuando la abeja fabrica una flor nueva.' },
-            { id: 'b', texto: 'El viaje del polen de una flor a otra.' },
-            { id: 'c', texto: 'Cuando las flores se cierran de noche.' },
-            { id: 'd', texto: 'La comida preferida de los murciélagos.' }
+          id: 'M6D1', tipo: 'asignar', vista: 'clasificar', puntos: 2,
+          consigna: '¿Es un ser vivo o es inerte? Llevá cada tarjeta a su caja.',
+          ayuda: 'Pensá: ¿nace, se alimenta, crece y se reproduce?',
+          contenidos: ['SVI'], espacio: 'Ciencias Naturales', comprension: '',
+          habilidad: 'Diferencia seres vivos de objetos inertes.',
+          criterio: 'Un acierto por tarjeta (8). Puntaje proporcional.',
+          bins: [ { id: 'V', texto: '🌱 Ser vivo' }, { id: 'I', texto: '🪨 Inerte' } ],
+          chips: [
+            { id: 'a', texto: '🌳 árbol' }, { id: 'b', texto: '🪨 piedra' }, { id: 'c', texto: '🐜 hormiga' }, { id: 'd', texto: '⚽ pelota' },
+            { id: 'e', texto: '🐧 pingüino' }, { id: 'f', texto: '🚗 auto' }, { id: 'g', texto: '🍅 planta de tomate' }, { id: 'h', texto: '🧸 oso de peluche' }
           ],
-          solucion: 'b'
+          solucion: { a: 'V', c: 'V', e: 'V', g: 'V', b: 'I', d: 'I', f: 'I', h: 'I' }
         },
         {
           id: 'M6D2', tipo: 'opcion', puntos: 1,
-          consigna: 'Si en un jardín desaparecieran todas las abejas, ¿qué les pasaría a las plantas que ellas visitan?',
-          contenidos: ['INF', 'CN'], espacio: 'Integrado', comprension: 'Inferencial',
-          habilidad: 'Infiere consecuencias de las interacciones entre seres vivos.',
-          criterio: 'Correcta: formarían menos frutos y semillas.',
+          consigna: 'Un auto se mueve y hace ruido. ¿Es un ser vivo?',
+          contenidos: ['SVI', 'INF'], espacio: 'Ciencias Naturales', comprension: 'Inferencial',
+          habilidad: 'Justifica por qué algo es o no es un ser vivo.',
+          criterio: 'Correcta: no, porque no nace, no se alimenta, no crece ni se reproduce.',
           opciones: [
-            { id: 'a', texto: 'Tendrían muchas más flores.' },
-            { id: 'b', texto: 'No les pasaría nada.' },
-            { id: 'c', texto: 'Se convertirían en cactus.' },
-            { id: 'd', texto: 'Formarían menos frutos y semillas.' }
+            { id: 'a', texto: 'Sí, porque todo lo que se mueve está vivo.' },
+            { id: 'b', texto: 'Sí, porque hace ruido.' },
+            { id: 'c', texto: 'No, porque no nace, no se alimenta, no crece ni se reproduce.' },
+            { id: 'd', texto: 'No, porque es de color rojo.' }
           ],
-          solucion: 'd'
+          solucion: 'c'
         },
         {
-          id: 'M6D3', tipo: 'opcion', puntos: 1,
-          consigna: 'Una flor está cerrada de noche y se abre a la mañana. ¿A qué estímulo está respondiendo?',
-          contenidos: ['INF', 'CN'], espacio: 'Ciencias Naturales', comprension: 'Inferencial',
-          habilidad: 'Reconoce la respuesta de una planta a un estímulo del ambiente.',
-          criterio: 'Correcta: a la luz del sol.',
+          id: 'M6D3', tipo: 'multiple', puntos: 2,
+          consigna: 'Don Ramiro quiere armar un almuerzo saludable. Marcá TODO lo que pondrías en su plato.',
+          ayuda: 'Pensá en un plato con verduras, cereales o legumbres, alguna proteína y agua.',
+          contenidos: ['NUT'], espacio: 'Ciencias Naturales', comprension: '',
+          habilidad: 'Selecciona alimentos para una comida saludable y equilibrada.',
+          criterio: '4 opciones saludables. Puntaje = (correctas − incorrectas) / 4, mínimo 0.',
           opciones: [
-            { id: 'a', texto: 'Al ruido de los pájaros.' },
-            { id: 'b', texto: 'A la luz del sol.' },
-            { id: 'c', texto: 'Al color de las abejas.' },
-            { id: 'd', texto: 'Al olor de la tierra.' }
+            { id: 'a', texto: '🥗 Ensalada de verduras' },
+            { id: 'b', texto: '🍬 Golosinas' },
+            { id: 'c', texto: '🍗 Pollo al horno' },
+            { id: 'd', texto: '🥤 Gaseosa' },
+            { id: 'e', texto: '🍚 Arroz' },
+            { id: 'f', texto: '💧 Agua' }
           ],
-          solucion: 'b'
+          solucion: ['a', 'c', 'e', 'f']
         },
         {
-          id: 'M6D4', tipo: 'asignar', vista: 'clasificar', puntos: 2,
-          consigna: '¿Cómo se relacionan estos seres vivos? Llevá cada pareja a la piedra del portal que corresponde.',
-          ayuda: 'Pensá: ¿se ayudan los dos?, ¿uno come al otro? o ¿uno le da casa al otro?',
-          contenidos: ['CN'], espacio: 'Ciencias Naturales', comprension: '',
-          habilidad: 'Reconoce interacciones entre seres vivos.',
-          criterio: 'Un acierto por pareja (6). Puntaje proporcional.',
-          bins: [ { id: 'AY', texto: '🤝 Se ayudan los dos' }, { id: 'AL', texto: '🍽️ Uno se alimenta del otro' }, { id: 'RE', texto: '🏠 Uno le da refugio al otro' } ],
-          chips: [
-            { id: 'a', texto: '🐝 La abeja y la flor' },
-            { id: 'b', texto: '🦉 La lechuza y el ratón' },
-            { id: 'c', texto: '🐦 El hornero y la rama del árbol donde hace su nido' },
-            { id: 'd', texto: '🐦 El picaflor y la flor' },
-            { id: 'e', texto: '🐸 El sapo y el mosquito' },
-            { id: 'f', texto: '🐦 El carpintero y el hueco del tronco donde vive' }
-          ],
-          solucion: { a: 'AY', d: 'AY', b: 'AL', e: 'AL', c: 'RE', f: 'RE' }
-        },
-        {
-          id: 'M6D5', tipo: 'colorear', puntos: 3,
-          consigna: 'Como en tu cuaderno: elegí un lápiz y pintá los SUSTANTIVOS de azul, los ADJETIVOS de verde y los VERBOS de rojo.',
-          ayuda: 'Primero tocá un lápiz y después las palabras. "Las" no se pinta. Para borrar, tocá la goma.',
-          contenidos: ['CLA', 'CN'], espacio: 'Integrado', comprension: '',
-          habilidad: 'Identifica categorías gramaticales dentro de un texto.',
-          criterio: '5 palabras a pintar. Puntaje = (bien pintadas − palabras pintadas que no correspondían) / 5, mínimo 0.',
+          id: 'M6D4', tipo: 'colorear', puntos: 3,
+          consigna: 'Como en tu cuaderno: pintá los SUSTANTIVOS de azul, los ADJETIVOS de verde y los VERBOS de rojo.',
+          ayuda: 'Primero tocá un lápiz y después las palabras. "La" no se pinta. Para borrar, tocá la goma.',
+          contenidos: ['SUS', 'VER'], espacio: 'Prácticas del Lenguaje', comprension: '',
+          habilidad: 'Identifica sustantivos, adjetivos y verbos dentro de una oración.',
+          criterio: '5 palabras a pintar. Puntaje = (bien pintadas − pintadas de más) / 5, mínimo 0.',
           categorias: [ { id: 'S', texto: 'Sustantivo', color: 'azul' }, { id: 'A', texto: 'Adjetivo', color: 'verde' }, { id: 'V', texto: 'Verbo', color: 'rojo' } ],
-          texto: 'Las abejas pequeñas visitan flores amarillas.',
+          texto: 'La niña curiosa prepara frutas frescas.',
           solucion: { 1: 'S', 2: 'A', 3: 'V', 4: 'S', 5: 'A' }
         },
         {
+          id: 'M6D5', tipo: 'escritura', puntos: 1, minCaracteres: 10,
+          consigna: '¡Ya casi resolvemos el misterio! Escribí una oración EXCLAMATIVA que diría Lumi al descubrir qué pasó con la hamburguesa.',
+          ayuda: 'Una oración exclamativa expresa una emoción. Abrí con ¡ y cerrá con ! y empezá con mayúscula.',
+          contenidos: ['ORA'], espacio: 'Prácticas del Lenguaje', comprension: '',
+          habilidad: 'Produce una oración exclamativa con la puntuación correspondiente.',
+          criterio: 'Automático: 1 punto si empieza con ¡, termina con ! y tiene al menos 3 palabras. La respuesta queda registrada para que la docente revise mayúscula y sentido.',
+          solucion: { empieza: '¡', termina: '!', minPalabras: 3 }
+        },
+        {
           id: 'M6D6', tipo: 'abierta', puntos: 2, minCaracteres: 25,
-          consigna: 'Lumi quiere poner un cartel en el bosque. ¿Te parece importante cuidar a las abejas? ¿Por qué? Usá información de la nota para explicar lo que pensás.',
-          ayuda: 'Contá qué pensás y explicalo con algo que leíste en "Socios del bosque".',
-          contenidos: ['OPI', 'CN'], espacio: 'Integrado', comprension: 'Opinión',
-          habilidad: 'Formula una opinión personal y la justifica con información de un texto informativo.',
-          criterio: '2 = postura clara y justificación con información de la nota (polinización, el polen viaja, frutos y semillas, alimento). 1 = postura con justificación general sin datos del texto. 0 = sin postura, sin justificación o respuesta ajena. Se acepta cualquier postura bien justificada.'
+          consigna: '¿Por qué es importante alimentarnos de forma saludable? Explicalo con lo que aprendiste en las misiones (nutrientes, digestión, respiración, energía).',
+          ayuda: 'Contá qué pensás y explicalo con algo que aprendiste en las estaciones del bosque.',
+          contenidos: ['OPI', 'NUT', 'SIS'], espacio: 'Integrado', comprension: 'Opinión',
+          habilidad: 'Formula una opinión fundamentada con conocimientos sobre nutrición y energía.',
+          criterio: '2 = postura clara y justificación con al menos un contenido trabajado (los nutrientes sirven para crecer o reparar el cuerpo, los hidratos dan energía, la digestión lleva nutrientes a la sangre, oxígeno + nutrientes = energía, hábitos). 1 = postura con justificación general sin contenidos ("para estar sano"). 0 = sin postura, sin justificación o respuesta ajena.'
         }
       ],
-      cierre: { tipo: 'portal', texto: 'Colocá los cinco tesoros en el Gran Portal para abrirlo.' }
+      cierre: { tipo: 'portal', texto: 'Colocá las cinco pistas en la puerta del Laboratorio para abrirlo.' }
     }
   ]
 };
@@ -922,7 +974,7 @@ var Correccion = (function () {
     return {
       banco: copia,
       config: {
-        TITULO: CONFIG.TITULO, SUBTITULO: CONFIG.SUBTITULO, INTENTOS_MAX: CONFIG.INTENTOS_MAX,
+        TITULO: CONFIG.TITULO, SUBTITULO: CONFIG.SUBTITULO, MARCA: CONFIG.MARCA, INTRO: CONFIG.INTRO, DIPLOMA: CONFIG.DIPLOMA, INTENTOS_MAX: CONFIG.INTENTOS_MAX,
         DIVISIONES: CONFIG.DIVISIONES, MENSAJES: CONFIG.MENSAJES
       }
     };
