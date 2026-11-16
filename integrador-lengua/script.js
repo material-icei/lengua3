@@ -5,7 +5,7 @@
    ►►► CONFIGURACIÓN: pegá acá la URL del servicio de Google Apps Script
        (la que termina en /exec, ver README.md, paso 8).              ◄◄◄
    ===================================================================== */
-var URL_SERVIDOR = 'https://script.google.com/macros/s/AKfycbzzgeK6n2ZJBJISnimsbG7KA2clskHUNnAAOlux18gtc-osweZnvqxhnrEvjXfHVK-k1Q/exec';
+var URL_SERVIDOR = 'PEGAR_AQUI_LA_URL_DEL_SERVICIO/exec';
 
 /* ---------------------------------------------------------------------
    Comunicación con el servicio (Apps Script).
@@ -130,6 +130,8 @@ var ILU = (function () {
     castillo: { cielo1: '#ffd9e8', cielo2: '#fff6e8', colina1: '#a8d98a', colina2: '#86c46c', colina3: '#6cb05a' },
     laboratorio: { cielo1: '#d6ecff', cielo2: '#f7fbff', colina1: '#9bd5a5', colina2: '#77c08a', colina3: '#5aa974' },
     reloj: { cielo1: '#2b2d5c', cielo2: '#6c5a9e', noche: true, colina1: '#3b6e5a', colina2: '#2f5b4a', colina3: '#244a3c', arbol1: '#23563f', arbol2: '#1b4532' },
+    cocina: { cielo1: '#ffe6c7', cielo2: '#fff8ec', colina1: '#a8d98a', colina2: '#86c46c', colina3: '#6cb05a' },
+    tunel: { cielo1: '#ffd6d6', cielo2: '#fff4f0', colina1: '#9fd3a8', colina2: '#7cc08b', colina3: '#62ad74' },
     portal: { cielo1: '#ffcf9e', cielo2: '#fff1d6', colina1: '#8ccf8f', colina2: '#67b874', colina3: '#4ea561', luciernagas: true }
   };
 
@@ -180,6 +182,23 @@ var ILU = (function () {
           '<g class="' + (on ? 'gira' : '') + '" style="transform-origin:100px 98px"><path d="M100 98 V78" stroke="#3d2f63" stroke-width="4" stroke-linecap="round"/></g><path d="M100 98 L114 104" stroke="#3d2f63" stroke-width="4" stroke-linecap="round"/>' +
           '<path d="M86 190 v-36 a14 14 0 0 1 28 0 v36z" fill="#4a3a6a"/>';
         break;
+      case 'cocina':
+        v += '<ellipse cx="100" cy="190" rx="84" ry="9" fill="#000" opacity=".12"/>' +
+          '<rect x="34" y="92" width="132" height="96" rx="6" fill="#fff4e0" stroke="#b39c7d" stroke-width="3"/>' +
+          '<path d="M20 96 L100 30 L180 96Z" fill="#e8873a" stroke="#b5622a" stroke-width="3"/>' +
+          '<rect x="130" y="40" width="18" height="40" fill="#b5622a"/>' +
+          (on ? '<g fill="#fff" opacity=".9"><circle class="titila" cx="139" cy="30" r="8"/><circle class="titila" style="animation-delay:.5s" cx="150" cy="16" r="10"/></g>' : '') +
+          '<rect x="56" y="112" width="36" height="30" rx="4" fill="#9ad3ff" stroke="#b39c7d" stroke-width="3"/>' +
+          '<path d="M110 188 v-50 h36 v50z" fill="#8a5a36"/>' +
+          '<g transform="translate(74 168)"><ellipse rx="30" ry="12" fill="#6c7a86"/><rect x="-30" y="-14" width="60" height="14" fill="#8a98a4"/>' + (on ? '<g fill="#ffd166"><circle class="titila" cx="-10" cy="-20" r="4"/><circle class="titila" style="animation-delay:.3s" cx="8" cy="-24" r="4"/></g>' : '') + '</g>';
+        break;
+      case 'tunel':
+        v += '<ellipse cx="100" cy="190" rx="86" ry="9" fill="#000" opacity=".12"/>' +
+          '<path d="M30 190 V100 a70 70 0 0 1 140 0 V190z" fill="#e7a0a0" stroke="#b56565" stroke-width="4"/>' +
+          '<path d="M56 190 V106 a44 44 0 0 1 88 0 V190z" fill="' + (on ? '#ffe9a8' : '#7a4a4a') + '"/>' +
+          '<path d="M100 66 C70 90 130 110 100 134 C70 158 130 168 100 190" stroke="' + (on ? '#e8673c' : '#a06060') + '" stroke-width="8" fill="none" stroke-linecap="round"' + (on ? ' class="titila"' : '') + '/>' +
+          (on ? '<g fill="#2f8f5b"><circle class="titila" cx="96" cy="84" r="5"/><circle class="titila" style="animation-delay:.4s" cx="108" cy="122" r="5"/><circle class="titila" style="animation-delay:.8s" cx="94" cy="160" r="5"/></g>' : '');
+        break;
       case 'portal':
         v += '<ellipse cx="100" cy="190" rx="86" ry="9" fill="#000" opacity=".12"/>' +
           '<path d="M30 190 V90 a70 70 0 0 1 140 0 V190 h-30 V92 a40 40 0 0 0 -80 0 V190z" fill="#a9b4bd" stroke="#6c7a86" stroke-width="4"/>' +
@@ -225,6 +244,62 @@ var ILU = (function () {
       '<g fill="#ffd166"><circle cx="110" cy="120" r="3"/><circle cx="122" cy="110" r="2.5"/><circle cx="100" cy="108" r="2"/></g></svg>';
   }
 
+  /* --------- Oso hormiguero y quebracho (dibujos propios) --------- */
+  function osoHormiguero(x, y, s, lengua) {
+    return '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')">' +
+      '<path d="M-70 -10 q-30 -40 -10 -60 q20 10 25 40z" fill="#5b4a3a"/>' +
+      '<ellipse cx="0" cy="0" rx="60" ry="32" fill="#8a7259"/>' +
+      '<path d="M-20 -30 L40 20 L30 28 L-30 -22z" fill="#2b2420"/><path d="M-22 -28 L38 22" stroke="#f1e6d3" stroke-width="4"/>' +
+      '<rect x="-40" y="22" width="12" height="26" rx="5" fill="#5b4a3a"/><rect x="25" y="22" width="12" height="26" rx="5" fill="#5b4a3a"/>' +
+      '<path d="M50 -14 Q90 -6 118 8 Q92 14 50 12z" fill="#8a7259"/>' +
+      '<circle cx="66" cy="-6" r="3.5" fill="#1b1730"/>' +
+      (lengua ? '<path d="M118 9 Q140 14 150 30" stroke="#e86a92" stroke-width="4" fill="none" stroke-linecap="round"/>' : '') +
+      '</g>';
+  }
+  function hormigas(cx, cy, n) { var r = ''; for (var i = 0; i < n; i++) r += '<circle cx="' + (cx + (i * 13) % 50 - 25) + '" cy="' + (cy + (i * 7) % 18) + '" r="3" fill="#3a2a1a"/>'; return r; }
+  function quebracho(x, y, s) {
+    return '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')"><path d="M-12 0 q4 -70 -6 -110 h36 q-10 40 -6 110z" fill="#6b4a2f"/>' +
+      '<g fill="#3f7f4f"><ellipse cx="0" cy="-140" rx="70" ry="40"/><ellipse cx="-50" cy="-118" rx="40" ry="26"/><ellipse cx="50" cy="-118" rx="40" ry="26"/></g>' +
+      '<circle cx="-6" cy="-62" r="4" fill="#2b1a0e"/><circle cx="12" cy="-62" r="4" fill="#2b1a0e"/><path d="M-4 -48 q8 6 16 0" stroke="#2b1a0e" stroke-width="3" fill="none"/></g>';
+  }
+
+  function figura(clave) {
+    var t = function (e, x, y, s) { return '<text x="' + x + '" y="' + y + '" font-size="' + s + '" text-anchor="middle">' + e + '</text>'; };
+    switch (clave) {
+      case 'abeja': return abeja();
+      case 'arbolConCara': return arbolConCara();
+      case 'digestivo':
+        return '<svg class="ilu-fig" viewBox="0 0 260 300" aria-hidden="true"><rect width="260" height="300" fill="#fff4f0"/>' +
+          '<circle cx="130" cy="52" r="34" fill="#f6d2b8" stroke="#c99a7a" stroke-width="2"/>' +
+          '<path d="M70 96 q60 -20 120 0 l10 190 h-140z" fill="#f6d2b8" stroke="#c99a7a" stroke-width="2"/>' +
+          '<path d="M118 68 q12 8 24 0" stroke="#c4502a" stroke-width="4" fill="none"/>' +
+          '<path d="M130 76 V140" stroke="#e8873a" stroke-width="7"/>' +
+          '<path d="M122 140 q40 -12 44 12 q4 24 -30 26 q-20 0 -22 -14z" fill="#f2a65a" stroke="#c4502a" stroke-width="2"/>' +
+          '<path d="M90 132 q20 -14 30 0 q-12 14 -30 10z" fill="#a8603a"/>' +
+          '<path d="M108 198 h48 M108 198 q-6 10 6 14 h36 q12 -4 6 -14 M112 214 q-6 10 6 14 h28 q10 -4 4 -14" stroke="#e86a92" stroke-width="5" fill="none"/>' +
+          '<path d="M96 188 v60 h72 v-60" stroke="#8a5aa8" stroke-width="7" fill="none"/>' +
+          '<path d="M132 248 v22" stroke="#8a5aa8" stroke-width="6"/>' +
+          '<g font-size="12" fill="#1c2a22" font-family="Arial"><text x="168" y="72">boca</text><text x="136" y="110">esófago</text><text x="170" y="150">estómago</text><text x="14" y="138">hígado</text><text x="176" y="210">intestino</text><text x="176" y="223">delgado</text><text x="10" y="236">intestino</text><text x="10" y="249">grueso</text></g></svg>';
+      case 'respiratorio':
+        return '<svg class="ilu-fig" viewBox="0 0 260 300" aria-hidden="true"><rect width="260" height="300" fill="#eef7ff"/>' +
+          '<circle cx="130" cy="52" r="34" fill="#f6d2b8" stroke="#c99a7a" stroke-width="2"/>' +
+          '<path d="M70 96 q60 -20 120 0 l10 190 h-140z" fill="#f6d2b8" stroke="#c99a7a" stroke-width="2"/>' +
+          '<path d="M124 50 q6 8 12 0" stroke="#c4502a" stroke-width="3" fill="none"/>' +
+          '<path d="M130 64 V150" stroke="#2f8f5b" stroke-width="8"/>' +
+          '<path d="M130 150 q-14 8 -24 24 M130 150 q14 8 24 24" stroke="#2f8f5b" stroke-width="6" fill="none"/>' +
+          '<path d="M118 130 q-50 10 -46 80 q30 20 50 -6z" fill="#ff9fb0" stroke="#d64575" stroke-width="2"/>' +
+          '<path d="M142 130 q50 10 46 80 q-30 20 -50 -6z" fill="#ff9fb0" stroke="#d64575" stroke-width="2"/>' +
+          '<g fill="#fff" opacity=".7"><circle cx="92" cy="180" r="4"/><circle cx="102" cy="194" r="3"/><circle cx="166" cy="182" r="4"/><circle cx="156" cy="196" r="3"/></g>' +
+          '<g font-size="12" fill="#1c2a22" font-family="Arial"><text x="168" y="48">nariz</text><text x="138" y="112">tráquea</text><text x="14" y="124">pulmón</text><text x="194" y="124">pulmón</text><text x="100" y="250">bronquios</text></g></svg>';
+      case 'vivos':
+        return '<svg class="ilu-fig" viewBox="0 0 260 220" aria-hidden="true"><rect width="260" height="220" fill="#f3fbef"/>' +
+          '<rect x="10" y="10" width="115" height="200" rx="14" fill="#dff3e4" stroke="#2f8f5b" stroke-width="3"/><rect x="135" y="10" width="115" height="200" rx="14" fill="#eceff3" stroke="#6c7a86" stroke-width="3"/>' +
+          '<g font-family="Arial" font-size="13" font-weight="bold"><text x="67" y="32" text-anchor="middle" fill="#1d5c3a">VIVOS</text><text x="192" y="32" text-anchor="middle" fill="#3b4a55">INERTES</text></g>' +
+          t('🌳', 45, 90, 38) + t('🐧', 92, 90, 38) + t('🐜', 45, 160, 38) + t('🌻', 92, 160, 38) + t('🪨', 170, 90, 38) + t('⚽', 217, 90, 38) + t('🚗', 170, 160, 38) + t('🧸', 217, 160, 38) + '</svg>';
+    }
+    return abeja();
+  }
+
   /* --------- Ilustraciones de los libros --------- */
   function pagina(nombre) {
     var noche = '<rect width="400" height="400" fill="#1f2f57"/>' + [20, 90, 160, 230, 300, 360].map(function (x, i) { return '<circle cx="' + x + '" cy="' + (30 + (i * 37) % 120) + '" r="2" fill="#fff"/>'; }).join('') +
@@ -250,6 +325,14 @@ var ILU = (function () {
       case 'arbol': c = dia + '<rect x="40" y="40" width="160" height="200" fill="#bfe8ff" stroke="#a4876a" stroke-width="10"/><circle cx="150" cy="90" r="26" fill="#fff3a6"/>' +
         '<path d="M120 380 q-6 -80 40 -150" stroke="#7a4e2d" stroke-width="18" fill="none"/><g fill="#ffd166" stroke="#d9a400" stroke-width="3"><circle cx="160" cy="220" r="40"/><circle cx="120" cy="250" r="30"/><circle cx="200" cy="250" r="28"/></g>' +
         emo('🍎', 150, 230, 26) + emo('🍐', 205, 260, 24) + emo('👧', 300, 370, 70) + emo('🧝', 350, 390, 46); break;
+      case 'hormiguero1': c = '<rect width="400" height="400" fill="#f6e3b8"/><path d="M0 300 Q200 260 400 300 V400 H0Z" fill="#c9a86a"/>' + quebracho(330, 330, .8) +
+        osoHormiguero(150, 300, 1, false) + emo('🦜', 70, 120, 40) + emo('🐒', 250, 170, 44) + emo('🍓', 210, 330, 26) + '<text x="150" y="200" font-size="34" text-anchor="middle">❓</text>'; break;
+      case 'hormiguero2': c = noche + quebracho(250, 360, 1.15) + osoHormiguero(110, 320, .85, false) + '<circle cx="60" cy="60" r="26" fill="#fff6c9"/>'; break;
+      case 'hormiguero3': c = '<rect width="400" height="400" fill="#ffe8b8"/><circle cx="330" cy="70" r="40" fill="#ffd166"/><path d="M0 300 Q200 260 400 300 V400 H0Z" fill="#c9a86a"/>' +
+        '<path d="M250 310 q40 -90 80 0z" fill="#a8743a"/>' + hormigas(290, 300, 10) + osoHormiguero(120, 300, 1, true) + '<text x="200" y="150" font-size="40" text-anchor="middle">😋</text>'; break;
+      case 'recreo1': c = dia + '<circle cx="330" cy="70" r="40" fill="#ffd166"/>' + emo('🏫', 80, 230, 80) + emo('🧒', 190, 330, 100) + emo('⚽', 290, 360, 50) + emo('🔔', 330, 190, 40); break;
+      case 'recreo2': c = dia + emo('🧒', 120, 300, 90) + emo('🐞', 230, 370, 34) + emo('🍫', 270, 250, 44) + emo('🦠', 200, 220, 30) + emo('🦠', 70, 190, 26) + emo('🤒', 320, 140, 60); break;
+      case 'recreo3': c = '<rect width="400" height="400" fill="#e6f4ff"/><rect x="40" y="260" width="320" height="30" rx="8" fill="#ffffff" stroke="#9dc7ec" stroke-width="4"/>' + emo('👩‍⚕️', 300, 230, 80) + emo('🧒', 120, 240, 90) + emo('🧼', 160, 340, 50) + emo('💦', 230, 350, 44) + emo('😊', 120, 120, 40); break;
     }
     return '<svg class="pag-ilu" viewBox="0 0 400 400" aria-hidden="true">' + c + '</svg>';
   }
@@ -261,7 +344,7 @@ var ILU = (function () {
       '<path d="M84 140 q8 -6 14 0 M104 140 q8 -6 14 0" stroke="#2b1a0e" stroke-width="3" fill="none"/></svg>';
   }
 
-  return { lumi: lumi, bosque: function (n) { return bosque(PALETAS[n] || PALETAS.mapa); }, lugar: lugar, cardon: cardon, abeja: abeja, pagina: pagina, arbolConCara: arbolConCara };
+  return { figura: figura, lumi: lumi, bosque: function (n) { return bosque(PALETAS[n] || PALETAS.mapa); }, lugar: lugar, cardon: cardon, abeja: abeja, pagina: pagina, arbolConCara: arbolConCara };
 })();
 
 
@@ -407,7 +490,7 @@ function iniciarApp() {
     var ruta = MIS.map(function (m, i) { return '<span class="' + (misionCerrada(m) ? 'hecha' : i === actual ? 'actual' : '') + '" title="' + esc(m.nombre) + '"></span>'; }).join('');
     var moch = MIS.slice(0, 5).map(function (m) { return '<div class="slot ' + (misionCerrada(m) ? 'lleno' : '') + '" title="' + esc(m.objeto.nombre) + '">' + (misionCerrada(m) ? m.objeto.emoji : '') + '</div>'; }).join('');
     var pend = Cola.leer().length;
-    h.innerHTML = '<div class="marca">' + ILU.lumi() + '<span>Bosque Encantado</span></div>' +
+    h.innerHTML = '<div class="marca">' + ILU.lumi() + '<span>' + esc(CFG.MARCA || CFG.TITULO) + '</span></div>' +
       '<div class="mision-actual">' + (h.dataset.titulo || '') + '</div>' +
       (pend ? '<div class="nota-chica" title="Respuestas esperando conexión">📡 ' + pend + '</div>' : '') +
       '<div class="ruta" aria-label="Recorrido">' + ruta + '</div>' +
@@ -452,7 +535,7 @@ function iniciarApp() {
     var tk = Almacen.get('token');
     c.innerHTML = ILU.lumi() +
       '<h1>' + esc(CFG.TITULO) + '</h1><div class="sub">' + esc(CFG.SUBTITULO) + '</div>' +
-      '<p class="intro">Un extraño hechizo cerró los caminos del bosque y escondió sus secretos. ¿Te animás a ser explorador o exploradora y ayudar a Lumi a devolverle el equilibrio?</p>' +
+      '<p class="intro">' + esc(CFG.INTRO) + '</p>' +
       '<button class="btn gigante" data-a="comenzar">🌿 COMENZAR AVENTURA</button>' +
       '<div class="continuar"></div>' +
       '<div class="pie-izq"><button class="ico" data-a="voz" aria-label="Escuchar la presentación">🔊</button></div>' +
@@ -556,7 +639,7 @@ function iniciarApp() {
   /* ===== Mapa ===== */
   var POS = [[90, 470], [330, 330], [560, 470], [790, 300], [1010, 450], [1160, 190]];
   function mapa() {
-    pintarHud('<b>Mapa del Bosque Encantado</b>');
+    pintarHud('<b>Mapa del bosque</b>');
     var c = limpiar('mapa'), act = misionActual();
     if (act >= MIS.length) return final();
     var path = 'M' + POS.map(function (p) { return (p[0] + 95) + ' ' + (p[1] + 80); }).join(' L');
@@ -602,9 +685,20 @@ function iniciarApp() {
   }
   function htmlNota(L) {
     return '<div class="nota"><div class="tx"><h2 class="titulo-fuente">' + esc(L.titulo) + '</h2>' + L.parrafos.map(function (p) { return '<p>' + fmt(p) + '</p>'; }).join('') +
-      '<div class="fuente">' + esc(L.fuente) + '</div></div><div class="fig">' + ILU.abeja() + '<div class="epi">' + esc(L.epigrafe) + '</div></div></div>';
+      '<div class="fuente">' + esc(L.fuente) + '</div></div><div class="fig">' + ILU.figura(L.figura || 'abeja') + '<div class="epi">' + esc(L.epigrafe) + '</div></div></div>';
+  }
+  function htmlReceta(L, zonas, mini) {
+    var slot = function (z) { return zonas && zonas[z] ? zonas[z] : ''; };
+    return '<div class="receta ' + (mini ? 'mini' : '') + '">' +
+      '<div class="rc-izq"><h2 class="tit">' + slot('z1') + esc(L.titulo) + '</h2>' +
+      '<div class="porc">' + slot('z2') + '🍽️ ' + esc(L.porciones) + '</div>' +
+      '<h3>' + slot('z3') + 'Ingredientes</h3><ul>' + L.ingredientes.map(function (x) { return '<li>' + fmt(x) + '</li>'; }).join('') + '</ul>' +
+      '<h3>' + slot('z4') + 'Utensilios</h3><ul>' + L.utensilios.map(function (x) { return '<li>' + fmt(x) + '</li>'; }).join('') + '</ul></div>' +
+      '<div class="rc-der"><h3>' + slot('z5') + 'Preparación</h3><ol>' + L.pasos.map(function (x) { return '<li>' + fmt(x) + '</li>'; }).join('') + '</ol>' +
+      (L.dato ? '<div class="datos"><div class="dt">¿Qué nos aportan?</div>' + fmt(L.dato) + '</div>' : '') + '</div></div>';
   }
   function textoLectura(L, p) {
+    if (L.tipo === 'receta') return L.titulo + '. ' + L.porciones + '. Ingredientes: ' + L.ingredientes.join(', ') + '. Utensilios: ' + L.utensilios.join(', ') + '. Preparación: ' + L.pasos.map(function (x, i) { return (i + 1) + ', ' + x; }).join(' ') + (L.dato ? ' ' + L.dato : '');
     if (L.tipo === 'enciclopedia') return L.titulo + '. ' + L.bloques.map(function (b) { return b.subtitulo + '. ' + b.texto; }).join(' ') + ' Epígrafe: ' + L.epigrafe + '. ¿Sabías que? ' + L.datos.join(' ') + ' ' + L.fuente;
     if (L.tipo === 'nota') return L.titulo + '. ' + L.parrafos.join(' ') + ' Epígrafe: ' + L.epigrafe;
     return (p === 0 ? L.titulo + '. ' : '') + L.paginas[p].parrafos.join(' ');
@@ -615,6 +709,7 @@ function iniciarApp() {
     var pintar = function () {
       var cuerpo;
       if (L.tipo === 'enciclopedia') cuerpo = htmlEnciclo(L);
+      else if (L.tipo === 'receta') cuerpo = htmlReceta(L);
       else if (L.tipo === 'nota') cuerpo = htmlNota(L);
       else { var pg = L.paginas[p]; cuerpo = '<div class="libro"><div class="ilu">' + ILU.pagina(pg.ilustracion) + '</div><div class="tx">' + (p === 0 ? '<h2 class="titulo-fuente">' + esc(L.titulo) + '</h2>' : '') + pg.parrafos.map(function (t) { return '<p>' + fmt(t) + '</p>'; }).join('') + '</div></div>'; }
       cont.innerHTML = cuerpo + '<div class="nav-lectura"><div style="display:flex;gap:10px"><button class="btn blanco chico" data-a="ant" ' + (p === 0 ? 'disabled' : '') + '>◀ Anterior</button><button class="ico" data-a="voz" aria-label="Escuchar esta página">🔊</button></div>' +
@@ -655,7 +750,8 @@ function iniciarApp() {
 
   R.opcion = function (d, w) {
     var sel = null, ops = barajar(d.opciones, d.id + S.token);
-    w.innerHTML = '<div class="opciones" role="radiogroup">' + ops.map(function (o, i) { return '<button class="op" role="radio" aria-checked="false" data-id="' + o.id + '"><span class="letra">' + 'ABCD'[i] + '</span><span>' + fmt(o.texto) + '</span></button>'; }).join('') + '</div>';
+    var ops_html = '<div class="opciones" role="radiogroup"' + (d.tarjeta ? ' style="grid-template-columns:1fr"' : '') + '>' + ops.map(function (o, i) { return '<button class="op" role="radio" aria-checked="false" data-id="' + o.id + '"><span class="letra">' + 'ABCD'[i] + '</span><span>' + fmt(o.texto) + '</span></button>'; }).join('') + '</div>';
+    w.innerHTML = d.tarjeta ? '<div class="con-tarjeta"><div class="etiqueta"><div class="et-tit">' + esc(d.tarjeta.titulo) + '</div>' + d.tarjeta.filas.map(function (f) { return '<div class="et-fila"><span>' + esc(f[0]) + '</span><b>' + esc(f[1]) + '</b></div>'; }).join('') + '</div>' + ops_html + '</div>' : ops_html;
     qa('.op', w).forEach(function (b) { b.onclick = function () { qa('.op', w).forEach(function (x) { x.classList.remove('sel'); x.setAttribute('aria-checked', 'false'); }); b.classList.add('sel'); b.setAttribute('aria-checked', 'true'); sel = b.dataset.id; Sonido.clic(); }; });
     return { valor: function () { return sel; }, falta: function () { return sel ? '' : 'Tocá una respuesta antes de comprobar.'; } };
   };
@@ -670,15 +766,14 @@ function iniciarApp() {
     return { valor: val, falta: function () { return val().length ? '' : 'Tocá al menos una tarjeta.'; } };
   };
   R.escena = function (d, w, sel) {
-    var dib = { a: '🦊', b: '🌛', c: '🦉', d: ILU.arbolConCara(), e: '☀️', f: '🪲' };
-    var pos = { a: [6, 52], b: [80, 4], c: [82, 52], d: [38, 6], e: [8, 4], f: [62, 64] };
-    var estrellas = ''; for (var i = 0; i < 25; i++) estrellas += '<i style="position:absolute;left:' + ((i * 37) % 100) + '%;top:' + ((i * 23) % 55) + '%;width:4px;height:4px;border-radius:50%;background:#fff;opacity:.7"></i>';
-    w.innerHTML = '<div class="escena"><div class="estrellitas">' + estrellas + '</div>' + d.opciones.map(function (o) {
-      return '<button class="pj" aria-pressed="false" aria-label="' + esc(o.texto) + '" data-id="' + o.id + '" style="left:' + pos[o.id][0] + '%;top:' + pos[o.id][1] + '%">' + dib[o.id] + '</button>';
+    // Cada opción trae su dibujo (emoji o "svg:clave") y su posición (x, y en %)
+    var dibujo = function (o) { return /^svg:/.test(o.dibujo || '') ? ILU.figura(o.dibujo.slice(4)) : esc(o.dibujo || '❓'); };
+    w.innerHTML = '<div class="escena fondo-' + esc(d.fondo || 'noche') + '">' + d.opciones.map(function (o) {
+      return '<button class="pj" aria-pressed="false" aria-label="' + esc(o.texto) + '" data-id="' + o.id + '" style="left:' + (+o.x || 0) + '%;top:' + (+o.y || 0) + '%">' + dibujo(o) + '</button>';
     }).join('') + '</div>';
     qa('.pj', w).forEach(function (b) { b.onclick = function () { var id = b.dataset.id; sel[id] = !sel[id]; b.classList.toggle('sel', sel[id]); b.setAttribute('aria-pressed', sel[id]); Sonido.clic(); }; });
     var val = function () { return Object.keys(sel).filter(function (k) { return sel[k]; }); };
-    return { valor: val, falta: function () { return val().length ? '' : 'Tocá al menos un personaje.'; } };
+    return { valor: val, falta: function () { return val().length ? '' : 'Tocá al menos uno.'; } };
   };
 
   /* --- Asignador genérico (arrastrar y soltar + alternativa por clics) --- */
@@ -756,7 +851,7 @@ function iniciarApp() {
         var h;
         if (vista === 'zonas') {
           var zonas = {}; bins.forEach(function (b) { zonas[b.id] = '<span class="zona-slot ' + (porBin[b.id] ? 'lleno' : '') + '" data-bin="' + b.id + '" role="button" tabindex="0" aria-label="Lugar ' + b.texto + '">' + (porBin[b.id] ? porBin[b.id].join('') : b.texto) + '</span>'; });
-          h = '<div class="asig"><div style="flex:1;display:flex;min-width:0">' + htmlEnciclo(MIS[S.mi].lectura, zonas, true) + '</div><div class="pozo" style="flex:0 0 210px;flex-direction:column;align-content:stretch">' + pozo + '</div></div>';
+          h = '<div class="asig"><div style="flex:1;display:flex;min-width:0">' + (MIS[S.mi].lectura.tipo === 'receta' ? htmlReceta : htmlEnciclo)(MIS[S.mi].lectura, zonas, true) + '</div><div class="pozo" style="flex:0 0 210px;flex-direction:column;align-content:stretch">' + pozo + '</div></div>';
         } else if (vista === 'unir') {
           h = '<div class="asig"><div class="unir">' + bins.map(function (b) { return '<div class="fila-unir"><div class="izq">' + fmt(b.texto) + '</div><div class="slot1" data-bin="' + b.id + '" role="button" tabindex="0" aria-label="Espacio para ' + esc(b.texto) + '">' + (porBin[b.id] ? porBin[b.id].join('') : '<span class="ph">Tocá aquí para ubicar</span>') + '</div></div>'; }).join('') + '</div><div class="pozo" style="flex:1;flex-direction:column;align-content:stretch;justify-content:center">' + pozo + '</div></div>';
         } else {
@@ -911,7 +1006,7 @@ function iniciarApp() {
     var j = q('.juego', c), listo = function () { recompensa(m); };
     if (cz.tipo === 'codigo') {
       j.innerHTML = '<div class="letras">' + cz.palabra.split('').map(function (l, i) { return '<div class="letra-c" style="animation-delay:' + i * .25 + 's">' + l + '</div>'; }).join('') + '</div>' +
-        '<div class="letras">' + cz.palabra.split('').map(function (l, i) { return '<input maxlength="1" aria-label="Letra ' + (i + 1) + '">'; }).join('') + '</div><button class="btn verde">Abrir el archivo 🔓</button>';
+        '<div class="letras">' + cz.palabra.split('').map(function (l, i) { return '<input maxlength="1" aria-label="Letra ' + (i + 1) + '">'; }).join('') + '</div><button class="btn verde">Abrir 🔓</button>';
       var ins = qa('input', j);
       ins.forEach(function (inp, i) { inp.oninput = function () { if (inp.value && ins[i + 1]) ins[i + 1].focus(); }; inp.onkeydown = function (e) { if (e.key === 'Backspace' && !inp.value && ins[i - 1]) ins[i - 1].focus(); if (e.key === 'Enter') q('.btn', j).click(); }; });
       ins[0].focus();
@@ -920,12 +1015,12 @@ function iniciarApp() {
         if (v === cz.palabra) listo(); else { q('.msg-error', c).textContent = 'Mirá las letras que brillan arriba y copialas en orden.'; j.classList.remove('temblor'); void j.offsetWidth; j.classList.add('temblor'); Sonido.casi(); }
       };
     } else if (cz.tipo === 'brotar') {
-      var etapas = ['🌰', '🌱', '🌿', '🌳'], n = 0;
-      j.innerHTML = '<button class="tocable semilla" aria-label="Tocar la semilla">🌰</button>';
-      q('.tocable', j).onclick = function () { n++; Sonido.clic(); this.textContent = etapas[Math.min(n, 3)]; this.classList.remove('temblor'); void this.offsetWidth; this.classList.add('temblor'); if (n >= 3) setTimeout(listo, 700); };
+      var etapas = cz.etapas || ['🌰', '🌱', '🌿', '🌳'], n = 0;
+      j.innerHTML = '<button class="tocable semilla" aria-label="Tocar">' + etapas[0] + '</button>';
+      q('.tocable', j).onclick = function () { n++; Sonido.clic(); this.textContent = etapas[Math.min(n, etapas.length - 1)]; this.classList.remove('temblor'); void this.offsetWidth; this.classList.add('temblor'); if (n >= 3) setTimeout(listo, 700); };
       q('.tocable', j).focus();
     } else {
-      var lug = cz.tipo === 'encender' ? 'claro' : cz.tipo === 'maquina' ? 'laboratorio' : 'reloj';
+      var lug = cz.lugar || (cz.tipo === 'encender' ? 'claro' : cz.tipo === 'maquina' ? 'laboratorio' : 'reloj');
       j.innerHTML = '<button class="tocable" aria-label="Tocar">' + ILU.lugar(lug, 'off') + '</button>';
       q('.tocable', j).onclick = function () { Sonido.premio(); this.innerHTML = ILU.lugar(lug, 'on'); this.onclick = null; setTimeout(listo, 1200); };
       q('.tocable', j).focus();
@@ -952,7 +1047,7 @@ function iniciarApp() {
     var c = limpiar('portal');
     var pos = [[17, 206], [69, 59], [164, -4], [259, 59], [311, 206]];
     var chips = barajar(MIS.slice(0, 5), 'portal' + S.token).map(function (mm) { return { id: mm.id, html: mm.objeto.emoji + '<span style="font-size:15px;display:block">' + esc(mm.objeto.nombre) + '</span>' }; });
-    c.innerHTML = '<div class="desafio"><div class="consigna"><div class="txt">' + esc(m.cierre.texto) + ' Cada tesoro va en la piedra de su misión (1 a 5).</div><div class="herr"><button class="ico" data-a="voz" aria-label="Escuchar">🔊</button></div></div><div class="trabajo" style="background:transparent;box-shadow:none"></div><div class="pie-desafio"><div class="mini-lumi">' + ILU.lumi() + '</div><div class="burbuja">Cada tesoro tiene su lugar: seguí el orden del recorrido.</div><button class="btn verde" data-a="abrir">Abrir el portal 🌈</button></div></div>';
+    c.innerHTML = '<div class="desafio"><div class="consigna"><div class="txt">' + esc(m.cierre.texto) + ' Cada pista va en el lugar de su misión (1 a 5).</div><div class="herr"><button class="ico" data-a="voz" aria-label="Escuchar">🔊</button></div></div><div class="trabajo" style="background:transparent;box-shadow:none"></div><div class="pie-desafio"><div class="mini-lumi">' + ILU.lumi() + '</div><div class="burbuja">Cada pista tiene su lugar: seguí el orden del recorrido.</div><button class="btn verde" data-a="abrir">Abrir 🔓</button></div></div>';
     q('[data-a=voz]', c).onclick = function () { Voz.decir(m.cierre.texto); };
     var w = q('.trabajo', c);
     var a = new Asignador(w, {
@@ -966,8 +1061,8 @@ function iniciarApp() {
     });
     q('[data-a=abrir]', c).onclick = function () {
       var v = a.valor(), ok = MIS.slice(0, 5).every(function (mm) { return v[mm.id] === mm.id; });
-      if (a.faltan()) { q('.burbuja', c).textContent = 'Todavía faltan tesoros en el portal.'; return; }
-      if (!ok) { q('.burbuja', c).textContent = 'Algún tesoro está en otra piedra. Pista: 1 lupa, 2 hoja, 3 semilla, 4 engranaje, 5 aguja del reloj.'; Sonido.casi(); return; }
+      if (a.faltan()) { q('.burbuja', c).textContent = 'Todavía faltan pistas en la puerta.'; return; }
+      if (!ok) { q('.burbuja', c).textContent = 'Alguna pista está en otro lugar. Pista: ' + MIS.slice(0, 5).map(function (mm, i) { return (i + 1) + ' ' + mm.objeto.nombre; }).join(', ') + '.'; Sonido.casi(); return; }
       registrarCierre(m); Sonido.premio(); confeti();
       dialogo(B.final.map(function (t) { return 'Lumi: ' + t; }), 'portal', 'portal', diploma);
       var lg = q('.lugar-grande'); if (lg) lg.innerHTML = ILU.lugar('portal', 'on');
@@ -979,9 +1074,9 @@ function iniciarApp() {
   function diploma() {
     pintarHud('<b>¡Misión cumplida!</b>');
     var c = limpiar('portada'), hoy = new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
-    c.innerHTML = '<div class="diploma"><h1>Diploma de Exploración</h1><div class="otorga">El Bosque Encantado reconoce a</div>' +
+    c.innerHTML = '<div class="diploma"><h1>Diploma de Exploración</h1><div class="otorga">Lumi y los guardianes del bosque reconocen a</div>' +
       '<div class="nombre">' + esc(S.estado.nombre + ' ' + S.estado.apellido) + '</div>' +
-      '<div class="texto">de ' + esc(S.estado.division) + ', por resolver el misterio, despertar al bosque y devolverle su equilibrio usando todo lo que aprendió en Prácticas del Lenguaje y Ciencias Naturales.</div>' +
+      '<div class="texto">de ' + esc(S.estado.division) + ', ' + esc(CFG.DIPLOMA) + '</div>' +
       '<div class="tesoros">' + MIS.slice(0, 5).map(function (m) { return m.objeto.emoji; }).join('') + '</div>' +
       '<div class="firmas"><div>' + esc(hoy) + '</div><div style="text-align:center">' + ILU.lumi() + '<br>Lumi, guía del bosque</div><div class="no-print" style="display:flex;gap:10px">' + (window.MODO_APP !== 'local' ? '<button class="btn blanco chico" data-a="imp">🖨️ Imprimir</button>' : '') + '<button class="btn chico" data-a="salir">Terminar</button></div></div></div>';
     confeti();
