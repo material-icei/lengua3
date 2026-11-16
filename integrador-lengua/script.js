@@ -5,7 +5,7 @@
    ►►► CONFIGURACIÓN: pegá acá la URL del servicio de Google Apps Script
        (la que termina en /exec, ver README.md, paso 8).              ◄◄◄
    ===================================================================== */
-var URL_SERVIDOR = 'https://script.google.com/macros/s/AKfycbwwPHG3621e8KWSzjCcD5FnuhgLww9C-3q7-N21RCo8J4OFpkygBPp1FpAA1iYfCrEGEQ/exec';
+var URL_SERVIDOR = 'PEGAR_AQUI_LA_URL_DEL_SERVICIO/exec';
 
 /* ---------------------------------------------------------------------
    Comunicación con el servicio (Apps Script).
@@ -291,6 +291,10 @@ var ILU = (function () {
           '<path d="M142 130 q50 10 46 80 q-30 20 -50 -6z" fill="#ff9fb0" stroke="#d64575" stroke-width="2"/>' +
           '<g fill="#fff" opacity=".7"><circle cx="92" cy="180" r="4"/><circle cx="102" cy="194" r="3"/><circle cx="166" cy="182" r="4"/><circle cx="156" cy="196" r="3"/></g>' +
           '<g font-size="12" fill="#1c2a22" font-family="Arial"><text x="168" y="48">nariz</text><text x="138" y="112">tráquea</text><text x="14" y="124">pulmón</text><text x="194" y="124">pulmón</text><text x="100" y="250">bronquios</text></g></svg>';
+      case 'desayuno':
+        return '<svg class="ilu-fig" viewBox="0 0 260 220" aria-hidden="true"><rect width="260" height="220" fill="#fff6e0"/><circle cx="215" cy="45" r="26" fill="#ffd166"/>' +
+          '<rect x="10" y="140" width="240" height="70" rx="10" fill="#e8b980"/><ellipse cx="130" cy="150" rx="110" ry="22" fill="#fff" stroke="#e7dcc2" stroke-width="3"/>' +
+          t('🥛', 60, 150, 52) + t('🍎', 110, 158, 40) + t('🍞', 165, 155, 46) + t('💧', 215, 150, 36) + t('☀️', 60, 70, 40) + '</svg>';
       case 'vivos':
         return '<svg class="ilu-fig" viewBox="0 0 260 220" aria-hidden="true"><rect width="260" height="220" fill="#f3fbef"/>' +
           '<rect x="10" y="10" width="115" height="200" rx="14" fill="#dff3e4" stroke="#2f8f5b" stroke-width="3"/><rect x="135" y="10" width="115" height="200" rx="14" fill="#eceff3" stroke="#6c7a86" stroke-width="3"/>' +
@@ -478,7 +482,7 @@ function iniciarApp() {
   function misionCompleta(m) { return m.desafios.every(function (d) { var e = infoDesafio(d.id); return e && e.cerrado; }); }
   function misionCerrada(m) { return S.estado && S.estado.cierres && !!S.estado.cierres[m.id]; }
   function misionActual() { for (var i = 0; i < MIS.length; i++) if (!misionCerrada(MIS[i])) return i; return MIS.length; }
-  function estrellas() { var n = 0; for (var k in S.estado.desafios) if (S.estado.desafios[k].superado) n++; return n; }
+  function estrellas() { var n = 0; for (var k in S.estado.desafios) if (S.estado.desafios[k].cerrado) n++; return n; } // una estrella por consigna respondida (no indica si es correcta)
 
   /* ---------------- HUD ---------------- */
   function pintarHud(titulo) {
@@ -734,15 +738,15 @@ function iniciarApp() {
 
   /* ===== Ayudas por tipo ===== */
   var AYUDAS = {
-    opcion: ['Leé la pregunta (o tocá 🔊 para escucharla).', 'Tocá UNA respuesta.', 'Tocá "Comprobar".'],
-    multiple: ['Puede haber varias respuestas correctas.', 'Tocá todas las que elegís. Para desmarcar, volvé a tocar.', 'Tocá "Comprobar".'],
+    opcion: ['Leé la pregunta (o tocá 🔊 para escucharla).', 'Tocá UNA respuesta.', 'Tocá "Enviar respuesta".'],
+    multiple: ['Puede haber varias respuestas correctas.', 'Tocá todas las que elegís. Para desmarcar, volvé a tocar.', 'Tocá "Enviar respuesta".'],
     asignar: ['Tocá una tarjeta: se pone azul.', 'Después tocá el lugar donde va.', 'También podés arrastrarla con el mouse o el dedo.', 'Para sacarla, tocala y tocá el recuadro de tarjetas.'],
     ordenar: ['Tocá una tarjeta y después el lugar con el número.', 'También podés arrastrarla.', 'Para cambiarla, tocala y tocá otro lugar.'],
     completar: ['En cada espacio hay varias palabras.', 'Tocá la que completa bien la oración.'],
     marcar: ['Tocá las palabras que pide la consigna: se pintan de amarillo.', 'Para desmarcar, tocá otra vez.'],
     colorear: ['Primero tocá un lápiz.', 'Después tocá las palabras para pintarlas.', 'Con la goma podés borrar.'],
     abierta: ['Escribí lo que pensás con tus palabras.', 'Explicá por qué, con algo del texto.', 'Cuando termines, tocá "Enviar".'],
-    escritura: ['Escribí tu oración.', 'Revisá la mayúscula y los signos.', 'Tocá "Comprobar".']
+    escritura: ['Escribí tu oración.', 'Revisá la mayúscula y los signos.', 'Tocá "Enviar respuesta".']
   };
 
   /* ===== Componentes de respuesta ===== */
@@ -942,12 +946,12 @@ function iniciarApp() {
       '<button class="ico" data-a="ayuda" title="¿Cómo se juega?" aria-label="Ayuda">❓</button>' +
       (m.lectura ? '<button class="ico" data-a="leer" title="Releer el texto" aria-label="Releer el texto">📖</button>' : '') + '</div></div>' +
       '<div class="trabajo"></div>' +
-      '<div class="pie-desafio"><div class="mini-lumi">' + ILU.lumi() + '</div><div class="burbuja" aria-live="polite"></div><button class="btn verde" data-a="comprobar">' + (d.tipo === 'abierta' ? 'Enviar ✉️' : 'Comprobar ✔') + '</button></div></div>';
+      '<div class="pie-desafio"><div class="mini-lumi">' + ILU.lumi() + '</div><div class="burbuja" aria-live="polite"></div><button class="btn verde" data-a="comprobar">' + 'Enviar respuesta ✔' + '</button></div></div>';
     var w = q('.trabajo', c), burb = q('.burbuja', c), btn = q('[data-a=comprobar]', c);
     var comp = R[d.tipo](d, w);
     var info = infoDesafio(d.id);
     var decir = function (t, clase) { burb.className = 'burbuja ' + (clase || ''); burb.innerHTML = t; };
-    decir(info && info.intentos ? '¡Tenés otra oportunidad! Revisá con calma.' : esc(d.ayuda || 'Leé la consigna con atención. Si querés, tocá 🔊 para escucharla.'));
+    decir('Leé la consigna con atención. Tenés una sola oportunidad: revisá antes de enviar. Si querés, tocá 🔊 para escucharla.');
     q('[data-a=voz]', c).onclick = function () { Voz.decir(d.consigna); };
     q('[data-a=ayuda]', c).onclick = function () {
       var pasos = (AYUDAS[d.vista === 'escena' ? 'multiple' : d.tipo] || []).slice(); if (d.ayuda) pasos.unshift(d.ayuda);
@@ -983,6 +987,7 @@ function iniciarApp() {
       if (r.yaCerrado) S.estado.desafios[d.id] = { intentos: r.intento, cerrado: true, superado: r.superado };
       var M = CFG.MENSAJES, extra = r.esperado ? '<br><small><b>Respuesta esperada (solo modo prueba):</b> ' + esc(r.esperado) + ' · Puntaje 1.er intento: ' + r.puntaje + '/' + d.puntos + '</small>' : '';
       if (r.offline) { decir(esc(azar(M.sinConexion)), 'info'); }
+      else if (r.mensaje === 'guardado') { decir('⭐ ' + esc(azar(M.guardado || ['Respuesta guardada.'])), 'info'); Sonido.clic(); }
       else if (r.mensaje === 'abierta') { decir(esc(azar(M.abierta)) + extra, 'ok'); Sonido.bien(); }
       else if (r.correcto) { decir('⭐ ' + esc(azar(M.correcto)) + extra, 'ok'); Sonido.bien(); }
       else if (!r.cerrado) {

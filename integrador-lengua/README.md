@@ -1,6 +1,6 @@
 # El misterio de la hamburguesa perdida: misión energía
 
-Esta es la sala de escape de la evaluación integradora de **3.º grado**: Prácticas del Lenguaje (2.º período) y el proyecto de Ciencias Naturales **«Del plato a la energía»** (cuerpo y alimentación). La app es una página web estática que se publica con **GitHub Pages**. Las respuestas las corrige y las guarda un servicio de **Google Apps Script** en una planilla de **Google Sheets** de la docente.
+Esta es la sala de escape de la **evaluación integral** de **3.º grado**: Prácticas del Lenguaje (2.º período) y el proyecto de Ciencias Naturales **«Del plato a la energía»** (cuerpo y alimentación). La app es una página web estática que se publica con **GitHub Pages**. Las respuestas las corrige y las guarda un servicio de **Google Apps Script** en una planilla de **Google Sheets** de la docente.
 
 📘 **Guía docente completa** (narrativa, matriz de evaluación, textos, respuestas correctas, rúbricas y pruebas): https://claude.ai/artifact/P7VdNw8UPTPMzb9uwLC3ek
 
@@ -23,7 +23,7 @@ Chromebook del alumno                 Google Apps Script (codigo.gs)            
 index.html + style.css + script.js
    │  GET  ?accion=banco      ───────► entrega preguntas sin soluciones
    │  POST {accion, datos}    ───────► registra, corrige y guarda ─────────────► planilla de la docente
-   ◄──────────────────────────────────  responde solo "bien / reintentar / seguimos"
+   ◄──────────────────────────────────  responde solo "respuesta guardada"
 ```
 
 Las soluciones y los puntajes **nunca** llegan al navegador del alumno.
@@ -100,7 +100,8 @@ Todo está al principio de **`codigo.gs`**, en `CONFIG` y `BANCO`. `script.js` *
 
 | Qué cambiar | Dónde (en `codigo.gs`) |
 |---|---|
-| Intentos por desafío | `CONFIG.INTENTOS_MAX` (hoy 2; solo se califica el primero) |
+| Intentos por consigna | `CONFIG.INTENTOS_MAX` (hoy **1**: evaluación integral, sin rehacer) |
+| Mostrar si acertó | `CONFIG.MOSTRAR_RESULTADO` (hoy **false**: el alumno nunca ve aciertos ni errores) |
 | Grados | `CONFIG.DIVISIONES` (hoy `['3º A', '3º B']`) |
 | Tiempo para terminar | `CONFIG.HORAS_PARA_TERMINAR` (hoy 3 horas desde que el alumno empieza) |
 | Umbral de acompañamiento | `CONFIG.UMBRAL_ACOMPANAMIENTO` (0.6 = 60 %) |
@@ -134,7 +135,7 @@ Algunas reglas para editar:
 | **Pruebas docentes** | Lo respondido en modo prueba |
 | `_Sesiones` (oculta) | Estado interno de cada alumno. **No editar.** |
 
-El alumno **nunca** ve puntajes ni porcentajes: solo estrellas, tesoros y un diploma con su nombre.
+El alumno **nunca** ve puntajes, porcentajes ni si respondió bien o mal. Cada consigna se responde **una sola vez** y no hay pistas: después de enviar solo aparece «Respuesta guardada». Las estrellas cuentan las consignas respondidas, no las correctas.
 
 ---
 
@@ -154,7 +155,7 @@ El alumno **nunca** ve puntajes ni porcentajes: solo estrellas, tesoros y un dip
 **Implementado**
 
 - Las soluciones están solo en el servidor.
-- El servidor corrige, valida cada dato y guarda el primer intento sin sobrescribirlo. Los envíos duplicados no suman intentos.
+- El servidor corrige, valida cada dato y acepta **un solo envío por consigna**. A la computadora del alumno no le devuelve si acertó: los resultados solo se ven en la planilla. Los envíos duplicados por cortes de conexión no cuentan como un nuevo intento.
 - Cada sesión tiene una clave aleatoria guardada en la Chromebook. Un integrador finalizado o vencido no acepta más respuestas.
 - Los envíos simultáneos se guardan de a uno (`LockService`).
 - La planilla es privada.

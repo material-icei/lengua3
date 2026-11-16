@@ -33,7 +33,9 @@ var CONFIG = {
   MARCA: 'Misión energía',
   INTRO: 'En el gran picnic del Bosque Encantado desapareció una hamburguesa. ¿Alguien se la llevó? ¿Desapareció… o se transformó? ¿Te animás a ser detective y ayudar a Lumi a resolver el misterio?',
   DIPLOMA: 'por resolver el misterio de la hamburguesa perdida y descubrir cómo nuestro cuerpo transforma los alimentos en energía, usando todo lo que aprendió en Prácticas del Lenguaje y Ciencias Naturales.',
-  INTENTOS_MAX: 2,               // intentos por desafío (el 1.º es el que se califica)
+  // EVALUACIÓN INTEGRAL: un solo intento por consigna y sin mostrar si la respuesta es correcta.
+  INTENTOS_MAX: 1,
+  MOSTRAR_RESULTADO: false,      // false = el alumno nunca ve aciertos ni errores (solo la docente, en la planilla)
   DURACION_ESTIMADA_MIN: 55,
   DIVISIONES: ['3º A', '3º B'],
   // El integrador se resuelve en una sola clase: pasado este tiempo desde que el
@@ -47,7 +49,7 @@ var CONFIG = {
     LEY: 'Leyenda',
     ORA: 'Tipos de oraciones',
     VER: 'Verbos y tiempos verbales',
-    SUS: 'Sustantivos, artículos y adjetivos (género y número)',
+    SUS: 'Clases de palabras, artículos y concordancia',
     NAR: 'Narración: inicio, desarrollo y final',
     LIT: 'Comprensión literal',
     INF: 'Comprensión inferencial',
@@ -55,9 +57,10 @@ var CONFIG = {
     NUT: 'Alimentación y nutrientes',
     SIS: 'Sistemas digestivo y respiratorio',
     HAB: 'Hábitos saludables y cuidado del agua',
-    SVI: 'Seres vivos e inertes'
+    PRO: 'Sustantivos propios y comunes'
   },
   MENSAJES: {
+    guardado: ['Respuesta guardada. ¡Sigamos investigando!', 'Lumi anotó tu respuesta en su libreta. ¡Vamos a la próxima pista!', 'Listo, quedó guardada. ¡Seguimos!'],
     correcto: ['¡Excelente, detective!', '¡Lo lograste! Encontraste una pista.', '¡Muy bien! El misterio se aclara un poco más.', '¡Genial! Sigamos investigando.'],
     reintento: ['Casi… Mirá otra vez con atención y probá de nuevo.', 'Todavía no. ¡Releé la pista y volvé a intentar!'],
     agotado: ['Lumi guardó tu respuesta en su libreta de detective. ¡Seguimos!', 'Tu respuesta quedó guardada. ¡Vamos a la próxima pista!'],
@@ -107,14 +110,12 @@ var BANCO = {
           '**Pinchar** los trozos en los palitos, alternando colores.',
           '**Mezclar** el yogur con la avena en el bol.',
           '**Servir** las brochetas con el yogur para mojar.'
-        ],
-        dato: 'Las frutas aportan vitaminas y minerales; el yogur, proteínas; y la avena, hidratos de carbono que nos dan energía.'
+        ]
       },
       desafios: [
         {
           id: 'M1D1', tipo: 'asignar', vista: 'zonas', puntos: 2,
           consigna: 'Doña Coneja perdió los carteles de su receta. Llevá cada cartel al número que corresponde.',
-          ayuda: 'Tocá un cartel y después tocá el número de la receta. También podés arrastrarlo.',
           contenidos: ['INS'], espacio: 'Prácticas del Lenguaje', comprension: '',
           habilidad: 'Reconoce las partes de un texto instructivo (receta).',
           criterio: 'Un acierto por cartel ubicado correctamente (5). Puntaje proporcional.',
@@ -139,7 +140,6 @@ var BANCO = {
         {
           id: 'M1D3', tipo: 'ordenar', puntos: 2,
           consigna: 'Alguien mezcló los pasos de otra receta: «Ensalada de frutas». Ordenalos del 1 al 4.',
-          ayuda: 'Pensá qué hay que hacer primero y qué después. Tocá una tarjeta y después el lugar con el número.',
           contenidos: ['INS', 'INF'], espacio: 'Prácticas del Lenguaje', comprension: 'Inferencial',
           habilidad: 'Ordena los pasos de un texto instructivo según una secuencia lógica.',
           criterio: 'Un acierto por tarjeta en su lugar (4). Puntaje proporcional.',
@@ -154,8 +154,7 @@ var BANCO = {
         },
         {
           id: 'M1D4', tipo: 'multiple', vista: 'escena', puntos: 2,
-          consigna: 'En la mesa del picnic, tocá TODOS los alimentos que aportan PROTEÍNAS, las que nos ayudan a crecer y a reparar el cuerpo.',
-          ayuda: 'Tocá cada alimento en la mesa. Si te equivocás, tocalo otra vez para desmarcarlo.',
+          consigna: 'En la mesa del picnic, tocá TODOS los alimentos que aportan PROTEÍNAS.',
           contenidos: ['NUT'], espacio: 'Ciencias Naturales', comprension: '',
           habilidad: 'Identifica alimentos fuente de proteínas.',
           criterio: '4 alimentos con proteínas (huevo, pescado, pollo, leche). Puntaje = (correctos − incorrectos) / 4, mínimo 0.',
@@ -175,7 +174,6 @@ var BANCO = {
         {
           id: 'M1D5', tipo: 'asignar', vista: 'clasificar', puntos: 3,
           consigna: 'Ordená la despensa: llevá cada alimento al frasco del nutriente que aporta principalmente.',
-          ayuda: 'Proteínas: carnes, huevo, legumbres, leche. Hidratos de carbono: pan, arroz, fideos. Grasas: aceite, palta, frutos secos. Vitaminas y minerales: frutas y verduras.',
           contenidos: ['NUT'], espacio: 'Ciencias Naturales', comprension: '',
           habilidad: 'Clasifica alimentos según el nutriente que aportan principalmente.',
           criterio: 'Un acierto por alimento (8). Puntaje proporcional.',
@@ -188,7 +186,7 @@ var BANCO = {
         },
         {
           id: 'M1D6', tipo: 'opcion', puntos: 1,
-          consigna: 'Un chico va a correr una carrera en el recreo. Según lo que leíste, ¿qué nutrientes le dan principalmente la energía que necesita?',
+          consigna: 'Un chico va a correr una carrera en el recreo. ¿Qué nutrientes le dan principalmente la energía que necesita?',
           contenidos: ['NUT', 'INF'], espacio: 'Integrado', comprension: 'Inferencial',
           habilidad: 'Relaciona los hidratos de carbono con el aporte de energía.',
           criterio: 'Correcta: los hidratos de carbono, como los de la avena, el pan o los fideos.',
@@ -199,12 +197,24 @@ var BANCO = {
             { id: 'd', texto: 'Ningún alimento da energía.' }
           ],
           solucion: 'a'
+        },
+        {
+          id: 'M1D7', tipo: 'asignar', vista: 'clasificar', puntos: 2,
+          consigna: 'Doña Coneja hizo una lista para el picnic. Llevá cada sustantivo a su canasta: PROPIO o COMÚN.',
+          contenidos: ['PRO'], espacio: 'Prácticas del Lenguaje', comprension: '',
+          habilidad: 'Diferencia sustantivos propios y comunes.',
+          criterio: 'Un acierto por sustantivo (8). Puntaje proporcional.',
+          bins: [ { id: 'P', texto: 'Sustantivo propio' }, { id: 'C', texto: 'Sustantivo común' } ],
+          chips: [
+            { id: 'a', texto: 'banana' }, { id: 'b', texto: 'Lumi' }, { id: 'c', texto: 'yogur' }, { id: 'd', texto: 'Mendoza' },
+            { id: 'e', texto: 'cuchillo' }, { id: 'f', texto: 'Argentina' }, { id: 'g', texto: 'bol' }, { id: 'h', texto: 'Ramiro' }
+          ],
+          solucion: { b: 'P', d: 'P', f: 'P', h: 'P', a: 'C', c: 'C', e: 'C', g: 'C' }
         }
       ],
       cierre: {
         tipo: 'codigo', palabra: 'PLATO',
-        texto: 'Cada desafío encendió una letra. Escribí la palabra secreta para abrir el recetario.',
-        dato: 'Un plato saludable tiene muchas frutas y verduras, y también cereales o legumbres, una porción de proteínas y agua para tomar.'
+        texto: 'Cada desafío encendió una letra. Escribí la palabra secreta para abrir el recetario.'
       }
     },
 
@@ -234,7 +244,6 @@ var BANCO = {
         {
           id: 'M2D1', tipo: 'multiple', puntos: 2,
           consigna: 'Marcá TODAS las características de la leyenda que aparecen en esta historia.',
-          ayuda: 'Puede haber más de una correcta. Tocá las tarjetas que elegís y después "Comprobar".',
           contenidos: ['LEY'], espacio: 'Prácticas del Lenguaje', comprension: '',
           habilidad: 'Reconoce las características de la leyenda.',
           criterio: '3 características correctas. Puntaje = (correctas − incorrectas) / 3, mínimo 0.',
@@ -251,7 +260,6 @@ var BANCO = {
         {
           id: 'M2D2', tipo: 'asignar', vista: 'clasificar', puntos: 3,
           consigna: 'Clasificá las oraciones de la leyenda según su tipo.',
-          ayuda: 'Enunciativa: cuenta o informa. Interrogativa: pregunta (¿?). Exclamativa: expresa una emoción (¡!). Imperativa: da una orden, un pedido o un consejo.',
           contenidos: ['ORA', 'LEY'], espacio: 'Prácticas del Lenguaje', comprension: '',
           habilidad: 'Identifica oraciones enunciativas, interrogativas, exclamativas e imperativas.',
           criterio: 'Un acierto por oración (8). Puntaje proporcional.',
@@ -271,7 +279,6 @@ var BANCO = {
         {
           id: 'M2D3', tipo: 'completar', puntos: 2,
           consigna: 'Elegí la oración que corresponde a cada situación.',
-          ayuda: 'Pensá qué quiere hacer el personaje: ¿preguntar, dar un consejo o expresar una emoción?',
           contenidos: ['ORA'], espacio: 'Prácticas del Lenguaje', comprension: 'Inferencial',
           habilidad: 'Selecciona el tipo de oración adecuado según la intención comunicativa.',
           criterio: 'Un acierto por situación (3). Puntaje proporcional.',
@@ -285,7 +292,6 @@ var BANCO = {
         {
           id: 'M2D4', tipo: 'ordenar', puntos: 2,
           consigna: 'Ordená los hechos de la leyenda del 1 al 4.',
-          ayuda: 'Tocá una tarjeta y después el lugar con el número. También podés arrastrarla.',
           contenidos: ['LEY', 'LIT'], espacio: 'Prácticas del Lenguaje', comprension: 'Literal',
           habilidad: 'Ordena los acontecimientos principales de una narración.',
           criterio: 'Un acierto por tarjeta en su lugar (4). Puntaje proporcional.',
@@ -313,9 +319,18 @@ var BANCO = {
           solucion: 'b'
         },
         {
+          id: 'M2D7', tipo: 'colorear', puntos: 2,
+          consigna: 'Pintá de VERDE los sustantivos PROPIOS y de AZUL los sustantivos COMUNES.',
+          contenidos: ['PRO', 'LEY'], espacio: 'Prácticas del Lenguaje', comprension: '',
+          habilidad: 'Identifica sustantivos propios y comunes dentro de una oración.',
+          criterio: '6 sustantivos a pintar. Puntaje = (bien pintados − pintados de más) / 6, mínimo 0.',
+          categorias: [ { id: 'P', texto: 'Propio', color: 'verde' }, { id: 'C', texto: 'Común', color: 'azul' } ],
+          texto: 'Lumi y Tina leyeron una leyenda del Chaco en la biblioteca de Salta.',
+          solucion: { 0: 'P', 2: 'P', 5: 'C', 7: 'P', 10: 'C', 12: 'P' }
+        },
+        {
           id: 'M2D6', tipo: 'abierta', puntos: 2, minCaracteres: 25,
           consigna: 'El oso hormiguero le pidió ayuda al Viejo Quebracho. ¿Te parece importante pedir ayuda cuando algo nos cuesta? ¿Por qué? Usá algo que pasó en la leyenda para explicar lo que pensás.',
-          ayuda: 'No hay una única respuesta correcta. Contá qué pensás y explicá por qué, con algo de la historia.',
           contenidos: ['OPI', 'LEY'], espacio: 'Prácticas del Lenguaje', comprension: 'Opinión',
           habilidad: 'Formula una opinión personal y la justifica con información del texto.',
           criterio: '2 = postura clara y justificación relacionada con hechos de la leyenda (no podía masticar, tenía hambre, el quebracho le aconsejó, encontró su comida). 1 = postura con justificación general o poco relacionada con el texto. 0 = sin postura, sin justificación o respuesta ajena al texto. Se acepta cualquier postura bien justificada.'
@@ -323,8 +338,7 @@ var BANCO = {
       ],
       cierre: {
         tipo: 'tocar', lugar: 'claro',
-        texto: '¡Recuperaste la leyenda! Tocá el Viejo Quebracho para que vuelva a brillar.',
-        dato: 'Dato científico: el oso hormiguero gigante vive en el norte de la Argentina. No tiene dientes: atrapa hormigas y termitas con su lengua larga y pegajosa.'
+        texto: '¡Recuperaste la leyenda! Tocá el Viejo Quebracho para que vuelva a brillar.'
       }
     },
 
@@ -355,7 +369,6 @@ var BANCO = {
         {
           id: 'M3D1', tipo: 'ordenar', puntos: 3,
           consigna: 'Armá el recorrido de la hamburguesa por el sistema digestivo: ordená los órganos del 1 al 6.',
-          ayuda: 'Empezá por donde entra el alimento. Tocá una tarjeta y después el lugar con el número.',
           contenidos: ['SIS', 'LIT'], espacio: 'Ciencias Naturales', comprension: 'Literal',
           habilidad: 'Ordena el recorrido del alimento por los órganos del sistema digestivo.',
           criterio: 'Un acierto por órgano en su lugar (6). Puntaje proporcional.',
@@ -369,7 +382,6 @@ var BANCO = {
         {
           id: 'M3D2', tipo: 'asignar', vista: 'unir', puntos: 2,
           consigna: 'Uní cada órgano con lo que hace.',
-          ayuda: 'Tocá una tarjeta de la derecha y después el espacio vacío al lado del órgano.',
           contenidos: ['SIS', 'LIT'], espacio: 'Ciencias Naturales', comprension: 'Literal',
           habilidad: 'Relaciona órganos del sistema digestivo con su función.',
           criterio: 'Un acierto por par (4). Puntaje proporcional.',
@@ -399,7 +411,6 @@ var BANCO = {
         {
           id: 'M3D4', tipo: 'asignar', vista: 'clasificar', puntos: 2,
           consigna: 'Estos verbos están en infinitivo. Llevá cada uno al frasco de su terminación: -AR, -ER o -IR.',
-          ayuda: 'Mirá cómo termina cada verbo: masticAR, comER, digerIR.',
           contenidos: ['VER'], espacio: 'Prácticas del Lenguaje', comprension: '',
           habilidad: 'Clasifica verbos en infinitivo según su terminación (-ar, -er, -ir).',
           criterio: 'Un acierto por verbo (8). Puntaje proporcional.',
@@ -413,7 +424,6 @@ var BANCO = {
         {
           id: 'M3D5', tipo: 'asignar', vista: 'clasificar', puntos: 2,
           consigna: '¿El verbo de cada oración está en INFINITIVO o CONJUGADO?',
-          ayuda: 'Infinitivo: el verbo "sin conjugar", termina en -ar, -er o -ir (masticar). Conjugado: dice quién hace la acción y cuándo (masticó, mastican).',
           contenidos: ['VER'], espacio: 'Prácticas del Lenguaje', comprension: '',
           habilidad: 'Distingue verbos en infinitivo y verbos conjugados.',
           criterio: 'Un acierto por oración (6). Puntaje proporcional.',
@@ -431,7 +441,6 @@ var BANCO = {
         {
           id: 'M3D6', tipo: 'asignar', vista: 'reloj', puntos: 2,
           consigna: 'Llevá cada oración al reloj: ¿la acción ocurrió en el PASADO, ocurre en el PRESENTE u ocurrirá en el FUTURO?',
-          ayuda: 'Pasado: ya ocurrió (ayer). Presente: ocurre ahora. Futuro: ocurrirá (mañana).',
           contenidos: ['VER'], espacio: 'Prácticas del Lenguaje', comprension: '',
           habilidad: 'Reconoce los tiempos verbales pasado, presente y futuro.',
           criterio: 'Un acierto por oración (6). Puntaje proporcional.',
@@ -445,12 +454,21 @@ var BANCO = {
             { id: 'f', texto: 'Hoy el intestino absorbe los nutrientes.' }
           ],
           solucion: { a: 'PA', e: 'PA', c: 'PR', f: 'PR', b: 'FU', d: 'FU' }
+        },
+        {
+          id: 'M3D7', tipo: 'asignar', vista: 'unir', puntos: 2,
+          consigna: 'Uní cada sustantivo COMÚN con un sustantivo PROPIO que nombre a uno de ellos.',
+          contenidos: ['PRO'], espacio: 'Prácticas del Lenguaje', comprension: '',
+          habilidad: 'Relaciona sustantivos comunes con sustantivos propios.',
+          criterio: 'Un acierto por par (4). Puntaje proporcional.',
+          bins: [ { id: 'p1', texto: 'río' }, { id: 'p2', texto: 'ciudad' }, { id: 'p3', texto: 'doctora' }, { id: 'p4', texto: 'país' } ],
+          chips: [ { id: 'r', texto: 'Rosario' }, { id: 't', texto: 'Argentina' }, { id: 'q', texto: 'Paraná' }, { id: 's', texto: 'Jirafa' } ],
+          solucion: { q: 'p1', r: 'p2', s: 'p3', t: 'p4' }
         }
       ],
       cierre: {
         tipo: 'tocar', lugar: 'tunel',
-        texto: '¡Completaste el viaje! Tocá el túnel para iluminar el recorrido del alimento.',
-        dato: 'El intestino delgado de una persona adulta mide varios metros: ¡está todo enrollado dentro de la panza!'
+        texto: '¡Completaste el viaje! Tocá el túnel para iluminar el recorrido del alimento.'
       }
     },
 
@@ -481,8 +499,7 @@ var BANCO = {
       desafios: [
         {
           id: 'M4D1', tipo: 'colorear', puntos: 2,
-          consigna: 'Como en tu cuaderno: pintá de ROJO los órganos de la DIGESTIÓN y de VERDE los de la RESPIRACIÓN.',
-          ayuda: 'Primero tocá un lápiz y después las palabras. Para borrar, tocá la goma.',
+          consigna: 'Pintá de ROJO los órganos de la DIGESTIÓN y de VERDE los de la RESPIRACIÓN.',
           contenidos: ['SIS'], espacio: 'Ciencias Naturales', comprension: '',
           habilidad: 'Distingue órganos del sistema digestivo y del sistema respiratorio.',
           criterio: '8 órganos a pintar. Puntaje = (bien pintados − pintados de más) / 8, mínimo 0.',
@@ -493,7 +510,6 @@ var BANCO = {
         {
           id: 'M4D2', tipo: 'ordenar', puntos: 2,
           consigna: 'Ordená el camino que hace el aire cuando respiramos.',
-          ayuda: 'Empezá por donde entra el aire. Tocá una tarjeta y después el lugar con el número.',
           contenidos: ['SIS', 'LIT'], espacio: 'Ciencias Naturales', comprension: 'Literal',
           habilidad: 'Ordena el recorrido del aire por el sistema respiratorio.',
           criterio: 'Un acierto por órgano en su lugar (5). Puntaje proporcional.',
@@ -535,7 +551,6 @@ var BANCO = {
         {
           id: 'M4D5', tipo: 'completar', puntos: 2,
           consigna: 'Elegí el artículo que corresponde a cada sustantivo (masculino o femenino, uno o varios).',
-          ayuda: 'El / La para uno solo. Los / Las para varios.',
           contenidos: ['SUS'], espacio: 'Prácticas del Lenguaje', comprension: '',
           habilidad: 'Concuerda el artículo con el género y el número del sustantivo.',
           criterio: 'Un acierto por espacio (4). Puntaje proporcional.',
@@ -550,7 +565,6 @@ var BANCO = {
         {
           id: 'M4D6', tipo: 'completar', puntos: 2,
           consigna: 'Corregí los carteles de la fábrica: elegí el adjetivo que concuerda con el sustantivo.',
-          ayuda: 'Mirá la palabra subrayada: ¿es femenina o masculina? ¿Es una o son varias?',
           contenidos: ['SUS'], espacio: 'Prácticas del Lenguaje', comprension: '',
           habilidad: 'Reconoce la concordancia de género y número entre sustantivo y adjetivo.',
           criterio: 'Un acierto por espacio (4). Puntaje proporcional.',
@@ -561,12 +575,20 @@ var BANCO = {
             { antes: 'El _aire_', opciones: ['fresco', 'fresca', 'frescos', 'frescas'], despues: 'entra por la nariz.' }
           ],
           solucion: ['sanos', 'roja', 'pequeñas', 'fresco']
+        },
+        {
+          id: 'M4D7', tipo: 'marcar', puntos: 2,
+          consigna: 'Tocá todos los sustantivos COMUNES de esta oración.',
+          contenidos: ['PRO', 'SIS'], espacio: 'Integrado', comprension: '',
+          habilidad: 'Identifica sustantivos comunes dentro de una oración.',
+          criterio: '3 sustantivos comunes. Puntaje = (correctos − incorrectos) / 3, mínimo 0.',
+          texto: 'En Rosario, Tina dibujó la nariz, la tráquea y los pulmones.',
+          solucion: [5, 7, 10]
         }
       ],
       cierre: {
         tipo: 'tocar', lugar: 'laboratorio',
-        texto: '¡La fábrica funciona! Tocala para encenderla y recibir el Soplo de Aire Puro.',
-        dato: 'Respiramos miles de veces por día, ¡y casi nunca nos damos cuenta!'
+        texto: '¡La fábrica funciona! Tocala para encenderla y recibir el Soplo de Aire Puro.'
       }
     },
 
@@ -596,7 +618,6 @@ var BANCO = {
         {
           id: 'M5D1', tipo: 'asignar', vista: 'clasificar', puntos: 2,
           consigna: '¿En qué parte del cuento ocurre cada hecho? Llevalo al INICIO, al DESARROLLO o al FINAL.',
-          ayuda: 'Inicio: presenta al personaje y el lugar. Desarrollo: aparece el problema. Final: cómo se resuelve.',
           contenidos: ['NAR', 'LIT'], espacio: 'Prácticas del Lenguaje', comprension: 'Literal',
           habilidad: 'Reconoce el inicio, el desarrollo y el final de una narración.',
           criterio: 'Un acierto por hecho (6). Puntaje proporcional.',
@@ -628,7 +649,6 @@ var BANCO = {
         {
           id: 'M5D3', tipo: 'multiple', puntos: 2,
           consigna: 'Marcá TODOS los hábitos que nos ayudan a prevenir enfermedades.',
-          ayuda: 'Puede haber varias correctas. Pensá: ¿esto cuida mi cuerpo?',
           contenidos: ['HAB'], espacio: 'Ciencias Naturales', comprension: '',
           habilidad: 'Reconoce hábitos de higiene que previenen enfermedades.',
           criterio: '4 hábitos saludables. Puntaje = (correctos − incorrectos) / 4, mínimo 0.',
@@ -645,8 +665,7 @@ var BANCO = {
         },
         {
           id: 'M5D4', tipo: 'asignar', vista: 'clasificar', puntos: 2,
-          consigna: 'El agua es un nutriente muy importante y hay que cuidarla. ¿Cada acción la cuida o la desperdicia?',
-          ayuda: 'Pulgar para arriba si cuida el agua. Pulgar para abajo si la desperdicia.',
+          consigna: '¿Cada acción cuida el agua o la desperdicia?',
           contenidos: ['HAB'], espacio: 'Ciencias Naturales', comprension: '',
           habilidad: 'Reconoce acciones que cuidan o desperdician el agua.',
           criterio: 'Un acierto por acción (6). Puntaje proporcional.',
@@ -689,12 +708,24 @@ var BANCO = {
             { id: 'd', texto: 'No hace falta tomar agua si comemos frutas.' }
           ],
           solucion: 'b'
+        },
+        {
+          id: 'M5D7', tipo: 'asignar', vista: 'clasificar', puntos: 3,
+          consigna: 'Clasificá estas palabras del caso de Teo: ¿es un sustantivo PROPIO, un sustantivo COMÚN o NO es un sustantivo?',
+          contenidos: ['PRO', 'SUS'], espacio: 'Prácticas del Lenguaje', comprension: '',
+          habilidad: 'Diferencia sustantivos propios, comunes y otras clases de palabras.',
+          criterio: 'Un acierto por palabra (8). Puntaje proporcional.',
+          bins: [ { id: 'P', texto: 'Sustantivo propio' }, { id: 'C', texto: 'Sustantivo común' }, { id: 'N', texto: 'No es sustantivo' } ],
+          chips: [
+            { id: 'a', texto: 'Teo' }, { id: 'b', texto: 'patio' }, { id: 'c', texto: 'jugó' }, { id: 'd', texto: 'Buenos Aires' },
+            { id: 'e', texto: 'jabón' }, { id: 'f', texto: 'feliz' }, { id: 'g', texto: 'doctora' }, { id: 'h', texto: 'corrió' }
+          ],
+          solucion: { a: 'P', d: 'P', b: 'C', e: 'C', g: 'C', c: 'N', f: 'N', h: 'N' }
         }
       ],
       cierre: {
         tipo: 'brotar', etapas: ['🦠', '🧼', '💦', '✨'],
-        texto: '¡Caso resuelto! Ayudá a Teo a lavarse las manos: tocá varias veces el jabón.',
-        dato: 'Lavarse las manos con agua y jabón durante unos 20 segundos elimina muchos gérmenes.'
+        texto: '¡Caso resuelto! Ayudá a Teo a lavarse las manos: tocá varias veces el jabón.'
       }
     },
 
@@ -702,59 +733,58 @@ var BANCO = {
     {
       id: 'M6',
       nombre: 'El Laboratorio de la Energía',
-      eje: 'Integración final: seres vivos y energía',
+      eje: 'Integración final: alimentación, energía y clases de palabras',
       lugar: 'El Laboratorio de la Energía',
       escena: 'portal',
       personaje: { nombre: 'Lumi', quien: 'tu guía', emoji: '✨' },
       objeto: { emoji: '⚡', nombre: 'Energía' },
       intro: [
-        'Lumi: ¡Llegamos al Laboratorio de la Energía! En la puerta hay una nota sobre los seres vivos.',
+        'Lumi: ¡Llegamos al Laboratorio de la Energía! En la puerta hay una nota sobre el desayuno.',
         'Lumi: Para abrir el laboratorio y resolver el misterio, tenemos que usar todo lo que aprendimos.'
       ],
       lectura: {
-        tipo: 'nota', figura: 'vivos',
-        titulo: '¿Cómo sabemos si algo está vivo?',
+        tipo: 'nota', figura: 'desayuno',
+        titulo: 'La energía de cada mañana',
         parrafos: [
-          'Los **seres vivos** nacen, se alimentan, respiran, crecen, se reproducen y mueren. Las personas, los animales y las plantas son seres vivos. Las plantas también están vivas, aunque no caminen: fabrican su propio alimento con la luz del sol, el agua y el aire.',
-          'Los **objetos inertes**, como una piedra, una pelota o un auto, no nacen, no se alimentan ni crecen. Algunos se mueven, como un auto, pero eso no los convierte en seres vivos.',
-          'Todos los seres vivos necesitamos alimento y energía para vivir.'
+          'Mientras dormimos, nuestro cuerpo pasa muchas horas sin comer. Por eso, a la mañana necesita alimentos que le den **energía** para empezar el día: caminar hasta la escuela, jugar en el recreo y prestar atención en clase.',
+          'Un buen desayuno puede tener leche o yogur, una fruta y pan o cereales. Las chicas y los chicos que desayunan suelen tener más energía durante la mañana.',
+          'Al desayuno también lo acompaña un vaso de agua, y antes de comer… ¡manos limpias!'
         ],
-        epigrafe: 'Seres vivos y objetos inertes.',
+        epigrafe: 'Un desayuno con leche, fruta y pan.',
         fuente: 'Fuente: Cartel del Laboratorio de la Energía.'
       },
       desafios: [
         {
-          id: 'M6D1', tipo: 'asignar', vista: 'clasificar', puntos: 2,
-          consigna: '¿Es un ser vivo o es inerte? Llevá cada tarjeta a su caja.',
-          ayuda: 'Pensá: ¿nace, se alimenta, crece y se reproduce?',
-          contenidos: ['SVI'], espacio: 'Ciencias Naturales', comprension: '',
-          habilidad: 'Diferencia seres vivos de objetos inertes.',
-          criterio: 'Un acierto por tarjeta (8). Puntaje proporcional.',
-          bins: [ { id: 'V', texto: '🌱 Ser vivo' }, { id: 'I', texto: '🪨 Inerte' } ],
-          chips: [
-            { id: 'a', texto: '🌳 árbol' }, { id: 'b', texto: '🪨 piedra' }, { id: 'c', texto: '🐜 hormiga' }, { id: 'd', texto: '⚽ pelota' },
-            { id: 'e', texto: '🐧 pingüino' }, { id: 'f', texto: '🚗 auto' }, { id: 'g', texto: '🍅 planta de tomate' }, { id: 'h', texto: '🧸 oso de peluche' }
+          id: 'M6D1', tipo: 'opcion', puntos: 1,
+          consigna: 'Según la nota, ¿por qué es importante desayunar?',
+          contenidos: ['NUT', 'LIT'], espacio: 'Integrado', comprension: 'Literal',
+          habilidad: 'Recupera información explícita de un texto informativo.',
+          criterio: 'Correcta: porque después de muchas horas sin comer el cuerpo necesita energía para empezar el día.',
+          opciones: [
+            { id: 'a', texto: 'Porque después de muchas horas sin comer, el cuerpo necesita energía para empezar el día.' },
+            { id: 'b', texto: 'Porque a la mañana no hace falta tomar agua.' },
+            { id: 'c', texto: 'Porque el desayuno reemplaza al almuerzo.' },
+            { id: 'd', texto: 'Porque así no hay que lavarse las manos.' }
           ],
-          solucion: { a: 'V', c: 'V', e: 'V', g: 'V', b: 'I', d: 'I', f: 'I', h: 'I' }
+          solucion: 'a'
         },
         {
           id: 'M6D2', tipo: 'opcion', puntos: 1,
-          consigna: 'Un auto se mueve y hace ruido. ¿Es un ser vivo?',
-          contenidos: ['SVI', 'INF'], espacio: 'Ciencias Naturales', comprension: 'Inferencial',
-          habilidad: 'Justifica por qué algo es o no es un ser vivo.',
-          criterio: 'Correcta: no, porque no nace, no se alimenta, no crece ni se reproduce.',
+          consigna: 'Un día Lumi no desayunó y a media mañana estaba cansada y sin ganas de jugar. ¿Por qué le pasó eso?',
+          contenidos: ['NUT', 'INF'], espacio: 'Integrado', comprension: 'Inferencial',
+          habilidad: 'Infiere la relación entre la alimentación y la energía.',
+          criterio: 'Correcta: le faltó la energía que dan los alimentos.',
           opciones: [
-            { id: 'a', texto: 'Sí, porque todo lo que se mueve está vivo.' },
-            { id: 'b', texto: 'Sí, porque hace ruido.' },
-            { id: 'c', texto: 'No, porque no nace, no se alimenta, no crece ni se reproduce.' },
-            { id: 'd', texto: 'No, porque es de color rojo.' }
+            { id: 'a', texto: 'Porque durmió demasiado bien.' },
+            { id: 'b', texto: 'Porque le faltó la energía que dan los alimentos.' },
+            { id: 'c', texto: 'Porque tomó un vaso de agua.' },
+            { id: 'd', texto: 'Porque se lavó las manos.' }
           ],
-          solucion: 'c'
+          solucion: 'b'
         },
         {
           id: 'M6D3', tipo: 'multiple', puntos: 2,
           consigna: 'Don Ramiro quiere armar un almuerzo saludable. Marcá TODO lo que pondrías en su plato.',
-          ayuda: 'Pensá en un plato con verduras, cereales o legumbres, alguna proteína y agua.',
           contenidos: ['NUT'], espacio: 'Ciencias Naturales', comprension: '',
           habilidad: 'Selecciona alimentos para una comida saludable y equilibrada.',
           criterio: '4 opciones saludables. Puntaje = (correctas − incorrectas) / 4, mínimo 0.',
@@ -770,8 +800,7 @@ var BANCO = {
         },
         {
           id: 'M6D4', tipo: 'colorear', puntos: 3,
-          consigna: 'Como en tu cuaderno: pintá los SUSTANTIVOS de azul, los ADJETIVOS de verde y los VERBOS de rojo.',
-          ayuda: 'Primero tocá un lápiz y después las palabras. "La" no se pinta. Para borrar, tocá la goma.',
+          consigna: 'Pintá los SUSTANTIVOS de azul, los ADJETIVOS de verde y los VERBOS de rojo.',
           contenidos: ['SUS', 'VER'], espacio: 'Prácticas del Lenguaje', comprension: '',
           habilidad: 'Identifica sustantivos, adjetivos y verbos dentro de una oración.',
           criterio: '5 palabras a pintar. Puntaje = (bien pintadas − pintadas de más) / 5, mínimo 0.',
@@ -782,16 +811,28 @@ var BANCO = {
         {
           id: 'M6D5', tipo: 'escritura', puntos: 1, minCaracteres: 10,
           consigna: '¡Ya casi resolvemos el misterio! Escribí una oración EXCLAMATIVA que diría Lumi al descubrir qué pasó con la hamburguesa.',
-          ayuda: 'Una oración exclamativa expresa una emoción. Abrí con ¡ y cerrá con ! y empezá con mayúscula.',
           contenidos: ['ORA'], espacio: 'Prácticas del Lenguaje', comprension: '',
           habilidad: 'Produce una oración exclamativa con la puntuación correspondiente.',
           criterio: 'Automático: 1 punto si empieza con ¡, termina con ! y tiene al menos 3 palabras. La respuesta queda registrada para que la docente revise mayúscula y sentido.',
           solucion: { empieza: '¡', termina: '!', minPalabras: 3 }
         },
         {
+          id: 'M6D7', tipo: 'completar', puntos: 2,
+          consigna: 'Elegí la forma bien escrita de cada sustantivo.',
+          contenidos: ['PRO'], espacio: 'Prácticas del Lenguaje', comprension: '',
+          habilidad: 'Escribe con mayúscula los sustantivos propios y con minúscula los comunes.',
+          criterio: 'Un acierto por espacio (4). Puntaje proporcional.',
+          oraciones: [
+            { antes: 'El búho', opciones: ['ramiro', 'Ramiro'], despues: 'vive en' },
+            { antes: '', opciones: ['córdoba', 'Córdoba'], despues: 'con su' },
+            { antes: '', opciones: ['Familia', 'familia'], despues: 'y desayuna' },
+            { antes: '', opciones: ['Frutas', 'frutas'], despues: 'con yogur.' }
+          ],
+          solucion: ['Ramiro', 'Córdoba', 'familia', 'frutas']
+        },
+        {
           id: 'M6D6', tipo: 'abierta', puntos: 2, minCaracteres: 25,
           consigna: '¿Por qué es importante alimentarnos de forma saludable? Explicalo con lo que aprendiste en las misiones (nutrientes, digestión, respiración, energía).',
-          ayuda: 'Contá qué pensás y explicalo con algo que aprendiste en las estaciones del bosque.',
           contenidos: ['OPI', 'NUT', 'SIS'], espacio: 'Integrado', comprension: 'Opinión',
           habilidad: 'Formula una opinión fundamentada con conocimientos sobre nutrición y energía.',
           criterio: '2 = postura clara y justificación con al menos un contenido trabajado (los nutrientes sirven para crecer o reparar el cuerpo, los hidratos dan energía, la digestión lleva nutrientes a la sangre, oxígeno + nutrientes = energía, hábitos). 1 = postura con justificación general sin contenidos ("para estar sano"). 0 = sin postura, sin justificación o respuesta ajena.'
@@ -1040,7 +1081,7 @@ var Correccion = (function () {
       return { publico: prev, cambio: false };
     }
     if (e && e.cerrado) {
-      return { publico: { ok: true, cerrado: true, yaCerrado: true, superado: !!e.superado, intento: e.intentos, pendiente: d.tipo === 'abierta' && e.docente == null }, cambio: false };
+      return { publico: { ok: true, cerrado: true, yaCerrado: true, intento: e.intentos, mensaje: 'guardado' }, cambio: false };
     }
     if (vencida(est, ahora)) return { publico: { ok: false, error: 'El tiempo del integrador ya terminó. Avisale a tu seño.', vencida: true } };
     var err = validar(d, resp);
@@ -1055,7 +1096,7 @@ var Correccion = (function () {
     if (e.intentos === 1) e.primero = { resp: resp, puntaje: puntaje, correcto: correcto, fecha: ahora, aciertos: c.aciertos, total: c.total };
     e.ultimo = { resp: resp, puntaje: puntaje, correcto: correcto, fecha: ahora };
     if (correcto) e.superado = true;
-    var max = d.tipo === 'abierta' ? 1 : CONFIG.INTENTOS_MAX;
+    var max = d.tipo === 'abierta' ? 1 : Math.max(1, CONFIG.INTENTOS_MAX || 1);
     if (correcto || e.intentos >= max) e.cerrado = true;
     est.ultima = ahora;
 
@@ -1065,6 +1106,8 @@ var Correccion = (function () {
       intento: e.intentos, cerrado: e.cerrado, superado: e.superado,
       pendiente: d.tipo === 'abierta', mensaje: tipoMsg
     };
+    // Evaluación integral: al alumno solo se le confirma que la respuesta quedó guardada.
+    if (CONFIG.MOSTRAR_RESULTADO === false && !est.prueba) pub = { ok: true, cerrado: e.cerrado, intento: e.intentos, mensaje: 'guardado' };
     e.ids[intentoId] = pub;
     return { publico: pub, cambio: true, ref: ref, entrada: e };
   }
@@ -1115,7 +1158,7 @@ var Correccion = (function () {
     var ds = {};
     for (var k in est.desafios) {
       var e = est.desafios[k];
-      ds[k] = { intentos: e.intentos, cerrado: e.cerrado, superado: e.superado };
+      ds[k] = CONFIG.MOSTRAR_RESULTADO === false && !est.prueba ? { intentos: e.intentos, cerrado: e.cerrado } : { intentos: e.intentos, cerrado: e.cerrado, superado: e.superado };
     }
     return { id: est.id, nombre: est.nombre, apellido: est.apellido, division: est.division, prueba: est.prueba,
       desafios: ds, cierres: est.cierres, estado: est.estado, inicio: est.inicio };
