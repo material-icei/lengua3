@@ -5,7 +5,7 @@
    ►►► CONFIGURACIÓN: pegá acá la URL del servicio de Google Apps Script
        (la que termina en /exec, ver README.md, paso 8).              ◄◄◄
    ===================================================================== */
-var URL_SERVIDOR = 'PEGAR_AQUI_LA_URL_DEL_SERVICIO/exec';
+var URL_SERVIDOR = 'https://script.google.com/macros/s/AKfycbzIWAeN0_Hlg8ZBODGht6TCeJc6cQKSZwDIw8Z8lwsFL7Bq4PPLWNh2cdqMwoDjfpzWKg/exec';
 
 /* ---------------------------------------------------------------------
    Comunicación con el servicio (Apps Script).
