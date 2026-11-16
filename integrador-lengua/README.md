@@ -1,8 +1,8 @@
-# El misterio del Bosque Encantado: misión rescate
+# El misterio de la hamburguesa perdida: misión energía
 
-Esta es la sala de escape de la evaluación integradora de fin de año de **3.º grado** (Prácticas del Lenguaje y Ciencias Naturales). La app es una página web estática que se publica con **GitHub Pages**. Las respuestas las corrige y las guarda un servicio de **Google Apps Script** en una planilla de **Google Sheets** de la docente.
+Esta es la sala de escape de la evaluación integradora de **3.º grado**: Prácticas del Lenguaje (2.º período) y el proyecto de Ciencias Naturales **«Del plato a la energía»** (cuerpo y alimentación). La app es una página web estática que se publica con **GitHub Pages**. Las respuestas las corrige y las guarda un servicio de **Google Apps Script** en una planilla de **Google Sheets** de la docente.
 
-📘 **Guía docente completa** (narrativa, matriz de evaluación, textos, respuestas correctas, rúbricas y pruebas): https://claude.ai/artifact/K3et2owbxNBTmtQDEfvS8H
+📘 **Guía docente completa** (narrativa, matriz de evaluación, textos, respuestas correctas, rúbricas y pruebas): https://claude.ai/artifact/P7VdNw8UPTPMzb9uwLC3ek
 
 ---
 
@@ -75,7 +75,7 @@ Guardá el archivo (o editalo directamente en GitHub con el ícono ✏️ y toc�
 
 Abrí el enlace de GitHub Pages con `?modo=prueba` al final, por ejemplo `https://<usuario>.github.io/<repositorio>/?modo=prueba`:
 
-- En la portada aparece **🧪 Modo prueba docente**. La clave inicial es `bosque2026`; cambiala desde **🌳 Sala de escape › Cambiar clave del modo prueba**.
+- En la portada aparece **🧪 Modo prueba docente**. La clave inicial es `energia2026`; cambiala desde **🌳 Sala de escape › Cambiar clave del modo prueba**.
 - En este modo todas las misiones están abiertas y, después de cada respuesta, ves la respuesta esperada y el puntaje.
 - Lo que respondas va solo a la hoja **Pruebas docentes**. Para limpiarla, usá **🌳 Sala de escape › Borrar pruebas docentes**.
 
