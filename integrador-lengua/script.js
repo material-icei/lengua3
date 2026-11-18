@@ -696,9 +696,9 @@ function iniciarApp() {
     return '<div class="receta ' + (mini ? 'mini' : '') + '">' +
       '<div class="rc-izq"><h2 class="tit">' + slot('z1') + esc(L.titulo) + '</h2>' +
       '<div class="porc">' + slot('z2') + '🍽️ ' + esc(L.porciones) + '</div>' +
-      '<h3>' + slot('z3') + 'Ingredientes</h3><ul>' + L.ingredientes.map(function (x) { return '<li>' + fmt(x) + '</li>'; }).join('') + '</ul>' +
-      '<h3>' + slot('z4') + 'Utensilios</h3><ul>' + L.utensilios.map(function (x) { return '<li>' + fmt(x) + '</li>'; }).join('') + '</ul></div>' +
-      '<div class="rc-der"><h3>' + slot('z5') + 'Preparación</h3><ol>' + L.pasos.map(function (x) { return '<li>' + fmt(x) + '</li>'; }).join('') + '</ol>' +
+      '<h3>' + slot('z3') + (zonas ? '' : 'Ingredientes') + '</h3><ul>' + L.ingredientes.map(function (x) { return '<li>' + fmt(x) + '</li>'; }).join('') + '</ul>' +
+      '<h3>' + slot('z4') + (zonas ? '' : 'Utensilios') + '</h3><ul>' + L.utensilios.map(function (x) { return '<li>' + fmt(x) + '</li>'; }).join('') + '</ul></div>' +
+      '<div class="rc-der"><h3>' + slot('z5') + (zonas ? '' : 'Preparación') + '</h3><ol>' + L.pasos.map(function (x) { return '<li>' + fmt(x) + '</li>'; }).join('') + '</ol>' +
       (L.dato ? '<div class="datos"><div class="dt">¿Qué nos aportan?</div>' + fmt(L.dato) + '</div>' : '') + '</div></div>';
   }
   function textoLectura(L, p) {
@@ -944,7 +944,8 @@ function iniciarApp() {
       '<div class="consigna"><div class="etq">Desafío<b>' + (k + 1) + ' de ' + m.desafios.length + '</b></div><div class="txt">' + fmt(d.consigna) + '</div>' +
       '<div class="herr"><button class="ico" data-a="voz" title="Escuchar la consigna" aria-label="Escuchar la consigna">🔊</button>' +
       '<button class="ico" data-a="ayuda" title="¿Cómo se juega?" aria-label="Ayuda">❓</button>' +
-      (m.lectura ? '<button class="ico" data-a="leer" title="Releer el texto" aria-label="Releer el texto">📖</button>' : '') + '</div></div>' +
+      // En la consigna de ubicar carteles no se ofrece releer: el texto completo mostraría los nombres de las partes
+      (m.lectura && d.vista !== 'zonas' ? '<button class="ico" data-a="leer" title="Releer el texto" aria-label="Releer el texto">📖</button>' : '') + '</div></div>' +
       '<div class="trabajo"></div>' +
       '<div class="pie-desafio"><div class="mini-lumi">' + ILU.lumi() + '</div><div class="burbuja" aria-live="polite"></div><button class="btn verde" data-a="comprobar">' + 'Enviar respuesta ✔' + '</button></div></div>';
     var w = q('.trabajo', c), burb = q('.burbuja', c), btn = q('[data-a=comprobar]', c);
@@ -959,7 +960,7 @@ function iniciarApp() {
       q('[data-a=v]', mm.nodo).onclick = function () { Voz.decir(pasos.join('. ')); };
       q('[data-a=ok]', mm.nodo).onclick = mm.cerrar;
     };
-    if (m.lectura) q('[data-a=leer]', c).onclick = function () { releer(m); };
+    if (q('[data-a=leer]', c)) q('[data-a=leer]', c).onclick = function () { releer(m); };
     var t0 = Date.now(), enviando = false;
 
     btn.onclick = function () {
